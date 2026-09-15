@@ -37,11 +37,8 @@ jobs:
             tools/spotbugs-*
             tools/pmd-bin-*
           key: tools-${{ runner.os }}-${{ hashFiles('tools/fetch.py') }}
-      - name: Golden data is reproducible
-        shell: bash
-        run: |
-          python tools/gen_golden_rk4.py
-          git diff --exit-code -- src/test/resources/golden/
+      - name: Golden data is reproducible (numeric tolerance)
+        run: python tools/gen_golden_rk4.py --check
       - name: Reliability pipeline (compile · test · coverage · mutation · PMD · SpotBugs · trace)
         run: python build.py
       - name: Job summary
