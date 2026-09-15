@@ -1,0 +1,10 @@
+build/
+tools/*.jar
+tools/*.zip
+tools/jacoco-*/
+tools/spotbugs-*/
+tools/pmd-bin-*/
+__pycache__/
+*.class
+.idea/
+.vscode/
