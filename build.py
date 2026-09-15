@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """
-orbit-pass-sim 시험 자동화 스크립트 (빌드 도구 없이 JDK 만으로 돈다).
+orbit-pass-sim 신뢰성 시험 파이프라인 (빌드 도구 없이 JDK + Python 만으로 돈다).
 
-  python build.py            # compile → test(+JaCoCo) → coverage gate → PMD → SpotBugs(JDK 21 이상 21 이하 런타임에서만)
-  python build.py test       # 단계 하나만
-  python build.py --min-line 90 --min-branch 80
+  python build.py                    # 전 단계: compile → test → coverage → mutation → pmd → spotbugs → trace
+  python build.py compile test       # 원하는 단계만
+  python build.py --skip mutation    # 특정 단계 빼기
 
-도구 jar 는 tools/ 아래에 없으면 Maven Central / GitHub 에서 내려받는다 (tools/fetch.py).
+단계와 실패 기준은 docs/test-plan.md §5 와 같다. 로컬·GitHub Actions·Jenkins 가 이 스크립트 하나를 공유한다.
+도구 jar 는 tools/fetch.py 가 고정 버전으로 내려받는다.
 """
 from __future__ import annotations
 
@@ -16,11 +17,13 @@ import os
 import shutil
 import subprocess
 import sys
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 SRC_MAIN = ROOT / "src" / "main" / "java"
 SRC_TEST = ROOT / "src" / "test" / "java"
+TEST_RESOURCES = ROOT / "src" / "test" / "resources"
 OUT = ROOT / "build"
 OUT_MAIN = OUT / "classes"
 OUT_TEST = OUT / "test-classes"
@@ -28,9 +31,10 @@ REPORTS = OUT / "reports"
 TOOLS = ROOT / "tools"
 JAVA_RELEASE = "21"
 SEP = ";" if os.name == "nt" else ":"
+ALL_STEPS = ["compile", "test", "coverage", "mutation", "pmd", "spotbugs", "trace"]
 
 
-def run(cmd: list[str], **kw) -> subprocess.CompletedProcess:
+def run(cmd: list, **kw) -> subprocess.CompletedProcess:
     print("$", " ".join(str(c) for c in cmd), flush=True)
     return subprocess.run([str(c) for c in cmd], **kw)
 
@@ -45,60 +49,81 @@ def java_sources(root: Path) -> list[Path]:
     return sorted(root.rglob("*.java"))
 
 
-def step_compile(tools: dict[str, Path]) -> None:
+def fail(msg: str) -> None:
+    print(f"\nFAILED: {msg}", flush=True)
+    sys.exit(1)
+
+
+# ---------------------------------------------------------------- compile
+def step_compile(tools: dict[str, Path], _args) -> None:
     shutil.rmtree(OUT, ignore_errors=True)
     OUT_MAIN.mkdir(parents=True)
     OUT_TEST.mkdir(parents=True)
-    r = run(["javac", "--release", JAVA_RELEASE, "-Xlint:all", "-Werror", "-d", OUT_MAIN, *java_sources(SRC_MAIN)])
-    if r.returncode:
-        sys.exit("compile(main) failed")
-    r = run(["javac", "--release", JAVA_RELEASE, "-Xlint:all", "-Werror",
-             "-cp", SEP.join([str(tools["junit"]), str(OUT_MAIN)]), "-d", OUT_TEST, *java_sources(SRC_TEST)])
-    if r.returncode:
-        sys.exit("compile(test) failed")
+    if run(["javac", "--release", JAVA_RELEASE, "-Xlint:all", "-Werror", "-d", OUT_MAIN,
+            *java_sources(SRC_MAIN)]).returncode:
+        fail("compile(main)")
+    if run(["javac", "--release", JAVA_RELEASE, "-Xlint:all", "-Werror",
+            "-cp", SEP.join([str(tools["junit"]), str(OUT_MAIN)]), "-d", OUT_TEST,
+            *java_sources(SRC_TEST)]).returncode:
+        fail("compile(test)")
+    if TEST_RESOURCES.exists():
+        shutil.copytree(TEST_RESOURCES, OUT_TEST, dirs_exist_ok=True)
 
 
-def step_test(tools: dict[str, Path]) -> None:
+# ---------------------------------------------------------------- test (+JaCoCo agent)
+def step_test(tools: dict[str, Path], _args) -> None:
     REPORTS.mkdir(parents=True, exist_ok=True)
     exec_file = OUT / "jacoco.exec"
+    exec_file.unlink(missing_ok=True)
     r = run(["java", f"-javaagent:{tools['jacoco_agent']}=destfile={exec_file}",
              "-jar", tools["junit"], "execute",
              "-cp", SEP.join([str(OUT_MAIN), str(OUT_TEST)]),
              "--scan-classpath", OUT_TEST,
-             "--details=tree", "--details-theme=ascii",
+             "--details=summary", "--details-theme=ascii",
              "--reports-dir", REPORTS / "junit"])
+    summary = junit_summary()
+    (REPORTS / "test-summary.txt").write_text(summary + "\n", encoding="utf-8")
+    print(summary)
     if r.returncode:
-        sys.exit("tests failed")
+        fail("tests")
 
 
-def step_coverage(tools: dict[str, Path], min_line: float, min_branch: float) -> None:
-    exec_file = OUT / "jacoco.exec"
-    html = REPORTS / "jacoco"
+def junit_summary() -> str:
+    xml = REPORTS / "junit" / "TEST-junit-jupiter.xml"
+    if not xml.exists():
+        return "tests: no report"
+    root = ET.parse(xml).getroot()
+    suite = root if root.tag == "testsuite" else root.find("testsuite")
+    return (f"tests={suite.get('tests')} failures={suite.get('failures')} "
+            f"errors={suite.get('errors')} skipped={suite.get('skipped')} time={suite.get('time')}s")
+
+
+# ---------------------------------------------------------------- coverage gate
+def step_coverage(tools: dict[str, Path], args) -> None:
     csv_path = REPORTS / "jacoco.csv"
-    r = run(["java", "-jar", tools["jacoco_cli"], "report", exec_file,
-             "--classfiles", OUT_MAIN, "--sourcefiles", SRC_MAIN,
-             "--html", html, "--csv", csv_path, "--name", "orbit-pass-sim"])
-    if r.returncode:
-        sys.exit("jacoco report failed")
-    line_missed = line_covered = br_missed = br_covered = 0
-    rows = []
+    if run(["java", "-jar", tools["jacoco_cli"], "report", OUT / "jacoco.exec",
+            "--classfiles", OUT_MAIN, "--sourcefiles", SRC_MAIN,
+            "--html", REPORTS / "jacoco", "--xml", REPORTS / "jacoco.xml", "--csv", csv_path,
+            "--name", "orbit-pass-sim"]).returncode:
+        fail("jacoco report")
+    totals = {"LINE": [0, 0], "BRANCH": [0, 0]}
+    print(f"\n{'class':<26}{'line%':>8}{'branch%':>9}")
     with open(csv_path, encoding="utf-8") as f:
         for row in csv.DictReader(f):
-            lm, lc = int(row["LINE_MISSED"]), int(row["LINE_COVERED"])
-            bm, bc = int(row["BRANCH_MISSED"]), int(row["BRANCH_COVERED"])
-            line_missed += lm; line_covered += lc; br_missed += bm; br_covered += bc
-            rows.append((row["CLASS"], pct(lc, lm), pct(bc, bm)))
-    line = pct(line_covered, line_missed)
-    branch = pct(br_covered, br_missed)
-    print(f"\n{'class':<22}{'line%':>8}{'branch%':>9}")
-    for name, l, b in rows:
-        print(f"{name:<22}{l:>8.1f}{b:>9.1f}")
-    print(f"{'TOTAL':<22}{line:>8.1f}{branch:>9.1f}   (gate: line>={min_line} branch>={min_branch})")
-    (REPORTS / "coverage-summary.txt").write_text(
-        f"line={line:.1f} branch={branch:.1f} lines={line_covered}/{line_covered + line_missed} "
-        f"branches={br_covered}/{br_covered + br_missed}\n", encoding="utf-8")
-    if line < min_line or branch < min_branch:
-        sys.exit(f"coverage gate failed: line {line:.1f} < {min_line} or branch {branch:.1f} < {min_branch}")
+            for kind in totals:
+                totals[kind][0] += int(row[f"{kind}_COVERED"])
+                totals[kind][1] += int(row[f"{kind}_MISSED"])
+            print(f"{row['CLASS']:<26}{pct(int(row['LINE_COVERED']), int(row['LINE_MISSED'])):>8.1f}"
+                  f"{pct(int(row['BRANCH_COVERED']), int(row['BRANCH_MISSED'])):>9.1f}")
+    line = pct(*totals["LINE"])
+    branch = pct(*totals["BRANCH"])
+    text = (f"line={line:.1f}% ({totals['LINE'][0]}/{sum(totals['LINE'])}) "
+            f"branch={branch:.1f}% ({totals['BRANCH'][0]}/{sum(totals['BRANCH'])}) "
+            f"gate: line>={args.min_line} branch>={args.min_branch}")
+    print(text)
+    (REPORTS / "coverage-summary.txt").write_text(text + "\n", encoding="utf-8")
+    if line < args.min_line or branch < args.min_branch:
+        fail(f"coverage gate: {text}")
 
 
 def pct(covered: int, missed: int) -> float:
@@ -106,63 +131,116 @@ def pct(covered: int, missed: int) -> float:
     return 100.0 * covered / total if total else 100.0
 
 
-def step_pmd(tools: dict[str, Path]) -> None:
-    REPORTS.mkdir(parents=True, exist_ok=True)
-    pmd = tools["pmd_bin"]
+# ---------------------------------------------------------------- mutation (PIT)
+def step_mutation(tools: dict[str, Path], args) -> None:
+    pit_dir = REPORTS / "pit"
+    shutil.rmtree(pit_dir, ignore_errors=True)
+    cp = SEP.join(str(tools[k]) for k in
+                  ("pit_cli", "pit_core", "pit_entry", "pit_junit5", "commons_text", "commons_lang3", "junit"))
+    r = run(["java", "-cp", cp, "org.pitest.mutationtest.commandline.MutationCoverageReport",
+             "--reportDir", pit_dir,
+             "--targetClasses", "orbitsim.*",
+             "--excludedClasses", "orbitsim.Main",
+             "--targetTests", "orbitsim.*Test",
+             "--sourceDirs", SRC_MAIN,
+             "--classPath", ",".join(str(p) for p in (OUT_MAIN, OUT_TEST, tools["junit"])),
+             "--mutators", "STRONGER",
+             "--outputFormats", "XML,HTML,CSV",
+             "--timestampedReports=false",
+             "--threads", str(max(1, (os.cpu_count() or 2) // 2)),
+             "--mutationThreshold", str(int(args.min_mutation))])
+    killed, total, survivors = pit_results(pit_dir / "mutations.xml")
+    score = 100.0 * killed / total if total else 0.0
+    text = f"mutation score={score:.1f}% ({killed}/{total} detected) gate>={args.min_mutation}"
+    lines = [text, "", "not detected:"] + survivors
+    (REPORTS / "mutation-summary.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(text)
+    if r.returncode or score < args.min_mutation:
+        fail(text)
+
+
+def pit_results(xml: Path) -> tuple[int, int, list[str]]:
+    if not xml.exists():
+        return 0, 0, ["(no mutations.xml)"]
+    killed = total = 0
+    survivors = []
+    for m in ET.parse(xml).getroot().iter("mutation"):
+        total += 1
+        if m.get("detected") == "true":
+            killed += 1
+        else:
+            survivors.append(f"  {m.findtext('sourceFile')}:{m.findtext('lineNumber')} "
+                             f"{m.get('status')} {m.findtext('mutator', '').rsplit('.', 1)[-1]} "
+                             f"— {m.findtext('description')}")
+    return killed, total, survivors
+
+
+# ---------------------------------------------------------------- static analysis
+def step_pmd(tools: dict[str, Path], _args) -> None:
     report = REPORTS / "pmd.txt"
-    r = run([pmd, "check", "-d", SRC_MAIN, "-R", ROOT / "tools" / "pmd-ruleset.xml",
+    REPORTS.mkdir(parents=True, exist_ok=True)
+    r = run([tools["pmd_bin"], "check", "-d", SRC_MAIN, "-R", TOOLS / "pmd-ruleset.xml",
              "-f", "text", "-r", report, "--no-cache", "--no-progress"])
-    text = report.read_text(encoding="utf-8") if report.exists() else ""
-    print(text or "(PMD: no violations)")
-    # PMD 는 위반이 있으면 4 를 돌려준다. 실행 자체 실패(1)와 구분한다.
-    if r.returncode not in (0, 4):
-        sys.exit(f"pmd failed with {r.returncode}")
+    text = report.read_text(encoding="utf-8").strip() if report.exists() else ""
+    print(text or "PMD: 0 violations")
     if r.returncode == 4:
-        sys.exit("pmd violations found")
+        fail("PMD violations")
+    if r.returncode != 0:
+        fail(f"PMD exited {r.returncode}")
 
 
-def step_spotbugs(tools: dict[str, Path]) -> None:
+def step_spotbugs(tools: dict[str, Path], _args) -> None:
     version = java_major_version()
     if version > 24:
-        print(f"(SpotBugs skipped: running JVM is Java {version}; SpotBugs 4.9 reads class files up to Java 24. CI runs it on JDK 21.)")
+        print(f"SpotBugs skipped: JVM is Java {version}, SpotBugs {tools['spotbugs'].parent.parent.name} "
+              f"reads class files up to Java 24. Run with JDK 21 (CI does).")
         return
-    REPORTS.mkdir(parents=True, exist_ok=True)
     report = REPORTS / "spotbugs.txt"
     r = run(["java", "-jar", tools["spotbugs"], "-textui", "-effort:max", "-low",
              "-output", report, OUT_MAIN])
-    text = report.read_text(encoding="utf-8") if report.exists() else ""
-    print(text or "(SpotBugs: no bugs)")
-    if r.returncode not in (0, 1):
-        sys.exit(f"spotbugs failed with {r.returncode}")
-    if text.strip():
-        sys.exit("spotbugs found issues")
+    text = report.read_text(encoding="utf-8").strip() if report.exists() else ""
+    print(text or "SpotBugs: 0 bugs")
+    if r.returncode not in (0, 1) or text:
+        fail("SpotBugs")
 
 
 def java_major_version() -> int:
     out = subprocess.run(["java", "-version"], capture_output=True, text=True).stderr
-    first = out.splitlines()[0] if out else ""
-    token = first.split('"')[1] if '"' in first else "0"
+    token = out.split('"')[1] if '"' in out else "0"
     return int(token.split(".")[0])
+
+
+# ---------------------------------------------------------------- traceability
+def step_trace(_tools, _args) -> None:
+    if run([sys.executable, TOOLS / "trace.py"]).returncode:
+        fail("requirements traceability")
+
+
+STEPS = {
+    "compile": step_compile, "test": step_test, "coverage": step_coverage, "mutation": step_mutation,
+    "pmd": step_pmd, "spotbugs": step_spotbugs, "trace": step_trace,
+}
 
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("steps", nargs="*", default=["compile", "test", "coverage", "pmd", "spotbugs"])
+    ap.add_argument("steps", nargs="*", help=f"any of: {' '.join(ALL_STEPS)} (default: all)")
+    ap.add_argument("--skip", nargs="*", default=[])
     ap.add_argument("--min-line", type=float, default=90.0)
-    ap.add_argument("--min-branch", type=float, default=80.0)
+    ap.add_argument("--min-branch", type=float, default=85.0)
+    ap.add_argument("--min-mutation", type=float, default=80.0)
     args = ap.parse_args()
+    unknown = [s for s in args.steps + args.skip if s not in ALL_STEPS]
+    if unknown:
+        ap.error(f"unknown step(s): {unknown}; choose from {ALL_STEPS}")
+    steps = [s for s in (args.steps or ALL_STEPS) if s not in args.skip]
     tools = ensure_tools()
-    if args.steps != ["compile", "test", "coverage", "pmd", "spotbugs"] and "compile" not in args.steps:
-        if not OUT_MAIN.exists():
-            step_compile(tools)
-    for s in args.steps:
-        print(f"\n===== {s} =====")
-        {"compile": lambda: step_compile(tools),
-         "test": lambda: step_test(tools),
-         "coverage": lambda: step_coverage(tools, args.min_line, args.min_branch),
-         "pmd": lambda: step_pmd(tools),
-         "spotbugs": lambda: step_spotbugs(tools)}[s]()
-    print("\nALL STEPS PASSED")
+    if "compile" not in steps and not OUT_MAIN.exists():
+        steps.insert(0, "compile")
+    for s in steps:
+        print(f"\n===== {s} =====", flush=True)
+        STEPS[s](tools, args)
+    print(f"\nALL STEPS PASSED: {', '.join(steps)}")
 
 
 if __name__ == "__main__":

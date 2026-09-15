@@ -1,0 +1,156 @@
+
+===== compile =====
+$ javac --release 21 -Xlint:all -Werror -d C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\classes C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\main\java\orbitsim\Constants.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\main\java\orbitsim\Frames.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\main\java\orbitsim\GroundStation.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\main\java\orbitsim\KeplerSolver.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\main\java\orbitsim\Main.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\main\java\orbitsim\OrbitalElements.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\main\java\orbitsim\PassPredictor.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\main\java\orbitsim\StateVector.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\main\java\orbitsim\TwoBodyPropagator.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\main\java\orbitsim\Vector3.java
+$ javac --release 21 -Xlint:all -Werror -cp C:\Users\ssung\Workspace\projects\orbit-pass-sim\tools\junit-platform-console-standalone-1.13.4.jar;C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\classes -d C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\test-classes C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\test\java\orbitsim\FramesTest.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\test\java\orbitsim\GoldenRk4Test.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\test\java\orbitsim\GroundStationTest.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\test\java\orbitsim\KeplerSolverTest.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\test\java\orbitsim\OrbitalElementsTest.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\test\java\orbitsim\PassPredictorTest.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\test\java\orbitsim\RobustnessTest.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\test\java\orbitsim\TwoBodyPropagatorTest.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\test\java\orbitsim\Vector3Test.java
+
+===== test =====
+$ java -javaagent:C:\Users\ssung\Workspace\projects\orbit-pass-sim\tools\jacoco-0.8.13\lib\jacocoagent.jar=destfile=C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\jacoco.exec -jar C:\Users\ssung\Workspace\projects\orbit-pass-sim\tools\junit-platform-console-standalone-1.13.4.jar execute -cp C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\classes;C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\test-classes --scan-classpath C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\test-classes --details=summary --details-theme=ascii --reports-dir C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\reports\junit
+stty: /dev/tty: No such device or address
+
+💚 [3mThanks for using JUnit![23m[0m Support its development at [4mhttps://junit.org/sponsoring[24m[0m
+
+
+Failures (9):
+  JUnit Jupiter:RobustnessTest:각도 정규화: 무작위 100,000 건이 [0, 2π) 이고 원래 각과 2π 배수만큼 차이난다
+    MethodSource [className = 'orbitsim.RobustnessTest', methodName = 'normalizeAngleRandomized', methodParameterTypes = '']
+    => org.opentest4j.AssertionFailedError: theta=-3.747053298055281E-19 r=6.283185307179586 ==> expected: <true> but was: <false>
+       org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+       org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+       org.junit.jupiter.api.AssertTrue.failNotTrue(AssertTrue.java:63)
+       org.junit.jupiter.api.AssertTrue.assertTrue(AssertTrue.java:36)
+       org.junit.jupiter.api.Assertions.assertTrue(Assertions.java:214)
+       orbitsim.RobustnessTest.normalizeAngleRandomized(RobustnessTest.java:59)
+       java.base/java.lang.reflect.Method.invoke(Method.java:580)
+       java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+       java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+  JUnit Jupiter:RobustnessTest:장기 전파: 고타원·중간·저이심 궤도 무작위 500 건이 예외 없이 비에너지를 보존한다:1.0 년
+    MethodSource [className = 'orbitsim.RobustnessTest', methodName = 'longTermPropagationIsStable', methodParameterTypes = 'double']
+    => org.opentest4j.AssertionFailedError: OrbitalElements[semiMajorAxisKm=12233.079439927007, eccentricity=0.24366826183145615, inclination=2.4595028316391065, raan=0.6463098988581537, argPerigee=1.2082079204543954, meanAnomalyAtEpoch=6.079026658140067] ==> Unexpected exception thrown: java.lang.ArithmeticException: Kepler solver did not converge: M=14731.548880606706 e=0.24366826183145615
+       org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:152)
+       org.junit.jupiter.api.AssertDoesNotThrow.createAssertionFailedError(AssertDoesNotThrow.java:84)
+       org.junit.jupiter.api.AssertDoesNotThrow.assertDoesNotThrow(AssertDoesNotThrow.java:75)
+       org.junit.jupiter.api.AssertDoesNotThrow.assertDoesNotThrow(AssertDoesNotThrow.java:66)
+       org.junit.jupiter.api.Assertions.assertDoesNotThrow(Assertions.java:3302)
+       [...]
+     Caused by: java.lang.ArithmeticException: Kepler solver did not converge: M=14731.548880606706 e=0.24366826183145615
+       orbitsim.KeplerSolver.solveEccentricAnomaly(KeplerSolver.java:40)
+       orbitsim.TwoBodyPropagator.stateAt(TwoBodyPropagator.java:23)
+       orbitsim.RobustnessTest.lambda$longTermPropagationIsStable$2(RobustnessTest.java:108)
+       org.junit.jupiter.api.AssertDoesNotThrow.assertDoesNotThrow(AssertDoesNotThrow.java:71)
+       [...]
+  JUnit Jupiter:RobustnessTest:장기 전파: 고타원·중간·저이심 궤도 무작위 500 건이 예외 없이 비에너지를 보존한다:30.0 년
+    MethodSource [className = 'orbitsim.RobustnessTest', methodName = 'longTermPropagationIsStable', methodParameterTypes = 'double']
+    => org.opentest4j.AssertionFailedError: OrbitalElements[semiMajorAxisKm=36849.59760807137, eccentricity=0.46468840695130215, inclination=2.138879790641585, raan=4.707809115650348, argPerigee=0.8954524619067054, meanAnomalyAtEpoch=2.6633126335429527] ==> Unexpected exception thrown: java.lang.ArithmeticException: Kepler solver did not converge: M=84500.38222898515 e=0.46468840695130215
+       org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:152)
+       org.junit.jupiter.api.AssertDoesNotThrow.createAssertionFailedError(AssertDoesNotThrow.java:84)
+       org.junit.jupiter.api.AssertDoesNotThrow.assertDoesNotThrow(AssertDoesNotThrow.java:75)
+       org.junit.jupiter.api.AssertDoesNotThrow.assertDoesNotThrow(AssertDoesNotThrow.java:66)
+       org.junit.jupiter.api.Assertions.assertDoesNotThrow(Assertions.java:3302)
+       [...]
+     Caused by: java.lang.ArithmeticException: Kepler solver did not converge: M=84500.38222898515 e=0.46468840695130215
+       orbitsim.KeplerSolver.solveEccentricAnomaly(KeplerSolver.java:40)
+       orbitsim.TwoBodyPropagator.stateAt(TwoBodyPropagator.java:23)
+       orbitsim.RobustnessTest.lambda$longTermPropagationIsStable$2(RobustnessTest.java:108)
+       org.junit.jupiter.api.AssertDoesNotThrow.assertDoesNotThrow(AssertDoesNotThrow.java:71)
+       [...]
+  JUnit Jupiter:RobustnessTest:장기 전파: 고타원·중간·저이심 궤도 무작위 500 건이 예외 없이 비에너지를 보존한다:1000.0 년
+    MethodSource [className = 'orbitsim.RobustnessTest', methodName = 'longTermPropagationIsStable', methodParameterTypes = 'double']
+    => org.opentest4j.AssertionFailedError: OrbitalElements[semiMajorAxisKm=37386.57274737389, eccentricity=0.6515226632470478, inclination=2.6343053998430848, raan=2.636198054102973, argPerigee=2.3304369873885653, meanAnomalyAtEpoch=5.985171267287732] ==> Unexpected exception thrown: java.lang.ArithmeticException: Kepler solver did not converge: M=2756133.917866506 e=0.6515226632470478
+       org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:152)
+       org.junit.jupiter.api.AssertDoesNotThrow.createAssertionFailedError(AssertDoesNotThrow.java:84)
+       org.junit.jupiter.api.AssertDoesNotThrow.assertDoesNotThrow(AssertDoesNotThrow.java:75)
+       org.junit.jupiter.api.AssertDoesNotThrow.assertDoesNotThrow(AssertDoesNotThrow.java:66)
+       org.junit.jupiter.api.Assertions.assertDoesNotThrow(Assertions.java:3302)
+       [...]
+     Caused by: java.lang.ArithmeticException: Kepler solver did not converge: M=2756133.917866506 e=0.6515226632470478
+       orbitsim.KeplerSolver.solveEccentricAnomaly(KeplerSolver.java:40)
+       orbitsim.TwoBodyPropagator.stateAt(TwoBodyPropagator.java:23)
+       orbitsim.RobustnessTest.lambda$longTermPropagationIsStable$2(RobustnessTest.java:108)
+       org.junit.jupiter.api.AssertDoesNotThrow.assertDoesNotThrow(AssertDoesNotThrow.java:71)
+       [...]
+  JUnit Jupiter:RobustnessTest:[D-4] |M| 이 1e15 까지 커져도 케플러 풀이는 예외 없이 잔차 조건을 만족한다
+    MethodSource [className = 'orbitsim.RobustnessTest', methodName = 'keplerConvergesForHugeMeanAnomaly', methodParameterTypes = '']
+    => org.opentest4j.AssertionFailedError: M=678659.2276547116 e=0.71688346162116 ==> Unexpected exception thrown: java.lang.ArithmeticException: Kepler solver did not converge: M=678659.2276547116 e=0.71688346162116
+       org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:152)
+       org.junit.jupiter.api.AssertDoesNotThrow.createAssertionFailedError(AssertDoesNotThrow.java:84)
+       org.junit.jupiter.api.AssertDoesNotThrow.assertDoesNotThrow(AssertDoesNotThrow.java:75)
+       org.junit.jupiter.api.AssertDoesNotThrow.assertDoesNotThrow(AssertDoesNotThrow.java:66)
+       org.junit.jupiter.api.Assertions.assertDoesNotThrow(Assertions.java:3302)
+       [...]
+     Caused by: java.lang.ArithmeticException: Kepler solver did not converge: M=678659.2276547116 e=0.71688346162116
+       orbitsim.KeplerSolver.solveEccentricAnomaly(KeplerSolver.java:40)
+       orbitsim.RobustnessTest.lambda$keplerConvergesForHugeMeanAnomaly$0(RobustnessTest.java:30)
+       org.junit.jupiter.api.AssertDoesNotThrow.assertDoesNotThrow(AssertDoesNotThrow.java:71)
+       [...]
+  JUnit Jupiter:RobustnessTest:[D-5] 정북에서 아주 조금 서쪽인 위성의 방위각은 360° 가 아니다
+    MethodSource [className = 'orbitsim.RobustnessTest', methodName = 'azimuthJustWestOfNorthIsBelow360', methodParameterTypes = '']
+    => org.opentest4j.AssertionFailedError: az=360.0 ==> expected: <true> but was: <false>
+       org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+       org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+       org.junit.jupiter.api.AssertTrue.failNotTrue(AssertTrue.java:63)
+       org.junit.jupiter.api.AssertTrue.assertTrue(AssertTrue.java:36)
+       org.junit.jupiter.api.Assertions.assertTrue(Assertions.java:214)
+       orbitsim.RobustnessTest.azimuthJustWestOfNorthIsBelow360(RobustnessTest.java:91)
+       java.base/java.lang.reflect.Method.invoke(Method.java:580)
+       java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+       java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+  JUnit Jupiter:RobustnessTest:[D-5] 각도 정규화는 적대적 경계 입력에서도 [0, 2π) 이다:θ=-1.0E-16
+    MethodSource [className = 'orbitsim.RobustnessTest', methodName = 'normalizeAngleStaysInHalfOpenRange', methodParameterTypes = 'double']
+    => org.opentest4j.AssertionFailedError: normalizeAngle(-1.0E-16) = 6.283185307179586 ==> expected: <true> but was: <false>
+       org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+       org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+       org.junit.jupiter.api.AssertTrue.failNotTrue(AssertTrue.java:63)
+       org.junit.jupiter.api.AssertTrue.assertTrue(AssertTrue.java:36)
+       org.junit.jupiter.api.Assertions.assertTrue(Assertions.java:214)
+       orbitsim.RobustnessTest.normalizeAngleStaysInHalfOpenRange(RobustnessTest.java:48)
+       java.base/java.lang.reflect.Method.invoke(Method.java:580)
+       java.base/java.util.Optional.ifPresent(Optional.java:178)
+       java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:184)
+       java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+       [...]
+  JUnit Jupiter:RobustnessTest:[D-5] 각도 정규화는 적대적 경계 입력에서도 [0, 2π) 이다:θ=-1.0E-17
+    MethodSource [className = 'orbitsim.RobustnessTest', methodName = 'normalizeAngleStaysInHalfOpenRange', methodParameterTypes = 'double']
+    => org.opentest4j.AssertionFailedError: normalizeAngle(-1.0E-17) = 6.283185307179586 ==> expected: <true> but was: <false>
+       org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+       org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+       org.junit.jupiter.api.AssertTrue.failNotTrue(AssertTrue.java:63)
+       org.junit.jupiter.api.AssertTrue.assertTrue(AssertTrue.java:36)
+       org.junit.jupiter.api.Assertions.assertTrue(Assertions.java:214)
+       orbitsim.RobustnessTest.normalizeAngleStaysInHalfOpenRange(RobustnessTest.java:48)
+       java.base/java.lang.reflect.Method.invoke(Method.java:580)
+       java.base/java.util.Optional.ifPresent(Optional.java:178)
+       java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:184)
+       java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+       [...]
+  JUnit Jupiter:RobustnessTest:[D-5] 각도 정규화는 적대적 경계 입력에서도 [0, 2π) 이다:θ=-4.9E-324
+    MethodSource [className = 'orbitsim.RobustnessTest', methodName = 'normalizeAngleStaysInHalfOpenRange', methodParameterTypes = 'double']
+    => org.opentest4j.AssertionFailedError: normalizeAngle(-4.9E-324) = 6.283185307179586 ==> expected: <true> but was: <false>
+       org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+       org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+       org.junit.jupiter.api.AssertTrue.failNotTrue(AssertTrue.java:63)
+       org.junit.jupiter.api.AssertTrue.assertTrue(AssertTrue.java:36)
+       org.junit.jupiter.api.Assertions.assertTrue(Assertions.java:214)
+       orbitsim.RobustnessTest.normalizeAngleStaysInHalfOpenRange(RobustnessTest.java:48)
+       java.base/java.lang.reflect.Method.invoke(Method.java:580)
+       java.base/java.util.Optional.ifPresent(Optional.java:178)
+       java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:184)
+       java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+       [...]
+
+Test run finished after 476 ms
+[        21 containers found      ]
+[         0 containers skipped    ]
+[        21 containers started    ]
+[         0 containers aborted    ]
+[        21 containers successful ]
+[         0 containers failed     ]
+[       126 tests found           ]
+[         0 tests skipped         ]
+[       126 tests started         ]
+[         0 tests aborted         ]
+[       117 tests successful      ]
+[         9 tests failed          ]
+
+tests=126 failures=9 errors=0 skipped=0 time=0.369s
+
+FAILED: tests
