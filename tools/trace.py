@@ -71,6 +71,9 @@ def read_results() -> dict[tuple[str, str], list[bool]]:
 
 
 def main() -> int:
+    # Windows 콘솔 기본 인코딩(cp1252)은 한글·화살표를 못 찍어 UnicodeEncodeError 로 빌드가 깨졌다 (CI windows-latest)
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     spec = read_spec()
     links = read_tags()
     results = read_results()

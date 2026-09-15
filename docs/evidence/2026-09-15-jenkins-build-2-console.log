@@ -1,0 +1,379 @@
+Started
+Checking out git https://github.com/Haejyn/orbit-pass-sim.git into C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim@script\8f544574cd182169ee3d5b6fec893d3e68a705c321ecae110672b9be7ea03ea6 to read Jenkinsfile
+The recommended git tool is: NONE
+No credentials specified
+ > git.exe rev-parse --resolve-git-dir C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim@script\8f544574cd182169ee3d5b6fec893d3e68a705c321ecae110672b9be7ea03ea6\.git # timeout=10
+ERROR: Workspace has a .git repository, but it appears to be corrupt.
+hudson.plugins.git.GitException: Command "git.exe rev-parse --resolve-git-dir C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim@script\8f544574cd182169ee3d5b6fec893d3e68a705c321ecae110672b9be7ea03ea6\.git" returned status code 128:
+stdout: 
+stderr: fatal: not a gitdir 'C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim@script\8f544574cd182169ee3d5b6fec893d3e68a705c321ecae110672b9be7ea03ea6\.git'
+
+	at PluginClassLoader for git-client//org.jenkinsci.plugins.gitclient.CliGitAPIImpl.launchCommandIn(CliGitAPIImpl.java:2852)
+	at PluginClassLoader for git-client//org.jenkinsci.plugins.gitclient.CliGitAPIImpl.launchCommandIn(CliGitAPIImpl.java:2777)
+	at PluginClassLoader for git-client//org.jenkinsci.plugins.gitclient.CliGitAPIImpl.launchCommandIn(CliGitAPIImpl.java:2772)
+	at PluginClassLoader for git-client//org.jenkinsci.plugins.gitclient.CliGitAPIImpl.launchCommand(CliGitAPIImpl.java:2055)
+	at PluginClassLoader for git-client//org.jenkinsci.plugins.gitclient.CliGitAPIImpl.launchCommand(CliGitAPIImpl.java:2067)
+	at PluginClassLoader for git-client//org.jenkinsci.plugins.gitclient.CliGitAPIImpl.hasGitRepo(CliGitAPIImpl.java:407)
+	at PluginClassLoader for git-client//hudson.plugins.git.GitAPI.hasGitRepo(GitAPI.java:283)
+	at PluginClassLoader for git//hudson.plugins.git.GitSCM.retrieveChanges(GitSCM.java:1205)
+	at PluginClassLoader for git//hudson.plugins.git.GitSCM._checkout(GitSCM.java:1310)
+	at PluginClassLoader for git//hudson.plugins.git.GitSCM.checkout(GitSCM.java:1277)
+	at PluginClassLoader for workflow-scm-step//org.jenkinsci.plugins.workflow.steps.scm.SCMStep.checkout(SCMStep.java:136)
+	at PluginClassLoader for workflow-cps//org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition.create(CpsScmFlowDefinition.java:168)
+	at PluginClassLoader for workflow-cps//org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition.create(CpsScmFlowDefinition.java:70)
+	at PluginClassLoader for workflow-job//org.jenkinsci.plugins.workflow.job.WorkflowRun.run(WorkflowRun.java:342)
+	at hudson.model.ResourceController.execute(ResourceController.java:97)
+	at hudson.model.Executor.run(Executor.java:456)
+Cloning the remote Git repository
+Cloning repository https://github.com/Haejyn/orbit-pass-sim.git
+ > git.exe init C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim@script\8f544574cd182169ee3d5b6fec893d3e68a705c321ecae110672b9be7ea03ea6 # timeout=10
+Fetching upstream changes from https://github.com/Haejyn/orbit-pass-sim.git
+ > git.exe --version # timeout=10
+ > git --version # 'git version 2.53.0.windows.2'
+ > git.exe fetch --tags --force --progress -- https://github.com/Haejyn/orbit-pass-sim.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git.exe config remote.origin.url https://github.com/Haejyn/orbit-pass-sim.git # timeout=10
+ > git.exe config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+Avoid second fetch
+ > git.exe rev-parse "refs/remotes/origin/main^{commit}" # timeout=10
+Checking out Revision 97c40e09072a17d02bf3b4afc600eef6b87ef716 (refs/remotes/origin/main)
+ > git.exe config core.sparsecheckout # timeout=10
+ > git.exe checkout -f 97c40e09072a17d02bf3b4afc600eef6b87ef716 # timeout=10
+Commit message: "ê³¨ë“  ìž¬í˜„ì„± ê²€ì‚¬ë¥¼ ìˆ˜ì¹˜ í—ˆìš© ì˜¤ì°¨ë¡œ, ì¤„ë°”ê¿ˆ ê³ ì •, ì°½ ì‹œìž‘â‰ 0 ê°„ê²© ê²€ì‚¬ ì‹œí—˜"
+First time build. Skipping changelog.
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on Jenkins in C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Declarative: Checkout SCM)
+[Pipeline] checkout
+The recommended git tool is: NONE
+No credentials specified
+Cloning the remote Git repository
+Cloning repository https://github.com/Haejyn/orbit-pass-sim.git
+ > git.exe init C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim # timeout=10
+Fetching upstream changes from https://github.com/Haejyn/orbit-pass-sim.git
+ > git.exe --version # timeout=10
+ > git --version # 'git version 2.53.0.windows.2'
+ > git.exe fetch --tags --force --progress -- https://github.com/Haejyn/orbit-pass-sim.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git.exe config remote.origin.url https://github.com/Haejyn/orbit-pass-sim.git # timeout=10
+ > git.exe config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+Avoid second fetch
+ > git.exe rev-parse "refs/remotes/origin/main^{commit}" # timeout=10
+Checking out Revision 97c40e09072a17d02bf3b4afc600eef6b87ef716 (refs/remotes/origin/main)
+ > git.exe config core.sparsecheckout # timeout=10
+ > git.exe checkout -f 97c40e09072a17d02bf3b4afc600eef6b87ef716 # timeout=10
+Commit message: "ê³¨ë“  ìž¬í˜„ì„± ê²€ì‚¬ë¥¼ ìˆ˜ì¹˜ í—ˆìš© ì˜¤ì°¨ë¡œ, ì¤„ë°”ê¿ˆ ê³ ì •, ì°½ ì‹œìž‘â‰ 0 ê°„ê²© ê²€ì‚¬ ì‹œí—˜"
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] timestamps
+[Pipeline] {
+[Pipeline] timeout
+[2026-09-15T09:52:13.559Z] Timeout set to expire in 30 min
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Checkout)
+[Pipeline] checkout
+[2026-09-15T09:52:13.650Z] The recommended git tool is: NONE
+[2026-09-15T09:52:13.650Z] No credentials specified
+[2026-09-15T09:52:13.650Z]  > git.exe rev-parse --resolve-git-dir C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\.git # timeout=10
+[2026-09-15T09:52:13.682Z] Fetching changes from the remote Git repository
+[2026-09-15T09:52:13.687Z]  > git.exe config remote.origin.url https://github.com/Haejyn/orbit-pass-sim.git # timeout=10
+[2026-09-15T09:52:13.710Z] Fetching upstream changes from https://github.com/Haejyn/orbit-pass-sim.git
+[2026-09-15T09:52:13.710Z]  > git.exe --version # timeout=10
+[2026-09-15T09:52:13.738Z]  > git --version # 'git version 2.53.0.windows.2'
+[2026-09-15T09:52:13.738Z]  > git.exe fetch --tags --force --progress -- https://github.com/Haejyn/orbit-pass-sim.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+[2026-09-15T09:52:14.275Z]  > git.exe rev-parse "refs/remotes/origin/main^{commit}" # timeout=10
+[2026-09-15T09:52:14.302Z] Checking out Revision 97c40e09072a17d02bf3b4afc600eef6b87ef716 (refs/remotes/origin/main)
+[2026-09-15T09:52:14.302Z]  > git.exe config core.sparsecheckout # timeout=10
+[2026-09-15T09:52:14.320Z]  > git.exe checkout -f 97c40e09072a17d02bf3b4afc600eef6b87ef716 # timeout=10
+[2026-09-15T09:52:14.369Z] Commit message: "ê³¨ë“  ìž¬í˜„ì„± ê²€ì‚¬ë¥¼ ìˆ˜ì¹˜ í—ˆìš© ì˜¤ì°¨ë¡œ, ì¤„ë°”ê¿ˆ ê³ ì •, ì°½ ì‹œìž‘â‰ 0 ê°„ê²© ê²€ì‚¬ ì‹œí—˜"
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Compile (-Werror))
+[Pipeline] script
+[Pipeline] {
+[Pipeline] isUnix
+[Pipeline] bat
+[2026-09-15T09:52:14.776Z] 
+[2026-09-15T09:52:14.776Z] C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim>python build.py compile 
+[2026-09-15T09:52:26.961Z] downloading https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.13.4/junit-platform-console-standalone-1.13.4.jar
+[2026-09-15T09:52:26.961Z] downloading https://repo1.maven.org/maven2/org/pitest/pitest-command-line/1.20.1/pitest-command-line-1.20.1.jar
+[2026-09-15T09:52:26.961Z] downloading https://repo1.maven.org/maven2/org/pitest/pitest/1.20.1/pitest-1.20.1.jar
+[2026-09-15T09:52:26.961Z] downloading https://repo1.maven.org/maven2/org/pitest/pitest-entry/1.20.1/pitest-entry-1.20.1.jar
+[2026-09-15T09:52:26.961Z] downloading https://repo1.maven.org/maven2/org/pitest/pitest-junit5-plugin/1.2.3/pitest-junit5-plugin-1.2.3.jar
+[2026-09-15T09:52:26.961Z] downloading https://repo1.maven.org/maven2/org/apache/commons/commons-text/1.13.1/commons-text-1.13.1.jar
+[2026-09-15T09:52:26.961Z] downloading https://repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.17.0/commons-lang3-3.17.0.jar
+[2026-09-15T09:52:26.961Z] downloading https://repo1.maven.org/maven2/org/jacoco/jacoco/0.8.13/jacoco-0.8.13.zip
+[2026-09-15T09:52:26.961Z] downloading https://github.com/spotbugs/spotbugs/releases/download/4.9.3/spotbugs-4.9.3.zip
+[2026-09-15T09:52:26.961Z] downloading https://github.com/pmd/pmd/releases/download/pmd_releases%2F7.14.0/pmd-dist-7.14.0-bin.zip
+[2026-09-15T09:52:26.961Z] 
+[2026-09-15T09:52:26.961Z] ===== compile =====
+[2026-09-15T09:52:26.961Z] $ javac --release 21 -Xlint:all -Werror -d C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\build\classes C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\src\main\java\orbitsim\Constants.java C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\src\main\java\orbitsim\Frames.java C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\src\main\java\orbitsim\GroundStation.java C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\src\main\java\orbitsim\KeplerSolver.java C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\src\main\java\orbitsim\Main.java C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\src\main\java\orbitsim\OrbitalElements.java C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\src\main\java\orbitsim\PassPredictor.java C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\src\main\java\orbitsim\StateVector.java C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\src\main\java\orbitsim\TwoBodyPropagator.java C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\src\main\java\orbitsim\Vector3.java
+[2026-09-15T09:52:26.961Z] $ javac --release 21 -Xlint:all -Werror -cp C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\tools\junit-platform-console-standalone-1.13.4.jar;C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\build\classes -d C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\build\test-classes C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\src\test\java\orbitsim\FramesTest.java C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\src\test\java\orbitsim\GoldenRk4Test.java C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\src\test\java\orbitsim\GroundStationTest.java C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\src\test\java\orbitsim\KeplerSolverTest.java C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\src\test\java\orbitsim\OrbitalElementsTest.java C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\src\test\java\orbitsim\PassPredictorTest.java C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\src\test\java\orbitsim\RobustnessTest.java C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\src\test\java\orbitsim\TwoBodyPropagatorTest.java C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\src\test\java\orbitsim\Vector3Test.java
+[2026-09-15T09:52:26.961Z] 
+[2026-09-15T09:52:26.961Z] ALL STEPS PASSED: compile
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Unit & property tests + JaCoCo)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] isUnix
+[Pipeline] bat
+[2026-09-15T09:52:27.393Z] 
+[2026-09-15T09:52:27.393Z] C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim>python build.py test 
+[2026-09-15T09:52:27.393Z] 
+[2026-09-15T09:52:27.393Z] ===== test =====
+[2026-09-15T09:52:27.393Z] $ java -javaagent:C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\tools\jacoco-0.8.13\lib\jacocoagent.jar=destfile=C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\build\jacoco.exec -jar C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\tools\junit-platform-console-standalone-1.13.4.jar execute -cp C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\build\classes;C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\build\test-classes --scan-classpath C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\build\test-classes --details=summary --details-theme=ascii --reports-dir C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\build\reports\junit
+[2026-09-15T09:52:27.960Z] stty: /dev/tty: No such device or address
+[2026-09-15T09:52:27.960Z] 
+[2026-09-15T09:52:27.960Z] ðŸ’š [3mThanks for using JUnit![23m[0m Support its development at [4mhttps://junit.org/sponsoring[24m[0m
+[2026-09-15T09:52:27.960Z] 
+[2026-09-15T09:52:28.893Z] 
+[2026-09-15T09:52:28.893Z] Test run finished after 550 ms
+[2026-09-15T09:52:28.893Z] [        21 containers found      ]
+[2026-09-15T09:52:28.893Z] [         0 containers skipped    ]
+[2026-09-15T09:52:28.893Z] [        21 containers started    ]
+[2026-09-15T09:52:28.893Z] [         0 containers aborted    ]
+[2026-09-15T09:52:28.893Z] [        21 containers successful ]
+[2026-09-15T09:52:28.893Z] [         0 containers failed     ]
+[2026-09-15T09:52:28.893Z] [       126 tests found           ]
+[2026-09-15T09:52:28.893Z] [         0 tests skipped         ]
+[2026-09-15T09:52:28.893Z] [       126 tests started         ]
+[2026-09-15T09:52:28.893Z] [         0 tests aborted         ]
+[2026-09-15T09:52:28.893Z] [       126 tests successful      ]
+[2026-09-15T09:52:28.893Z] [         0 tests failed          ]
+[2026-09-15T09:52:28.893Z] 
+[2026-09-15T09:52:29.153Z] tests=126 failures=0 errors=0 skipped=0 time=0.434s
+[2026-09-15T09:52:29.153Z] 
+[2026-09-15T09:52:29.153Z] ALL STEPS PASSED: test
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Coverage gate)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] isUnix
+[Pipeline] bat
+[2026-09-15T09:52:29.558Z] 
+[2026-09-15T09:52:29.558Z] C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim>python build.py coverage 
+[2026-09-15T09:52:29.558Z] 
+[2026-09-15T09:52:29.558Z] ===== coverage =====
+[2026-09-15T09:52:29.558Z] $ java -jar C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\tools\jacoco-0.8.13\lib\jacococli.jar report C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\build\jacoco.exec --classfiles C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\build\classes --sourcefiles C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\src\main\java --html C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\build\reports\jacoco --xml C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\build\reports\jacoco.xml --csv C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\build\reports\jacoco.csv --name orbit-pass-sim
+[2026-09-15T09:52:29.819Z] [INFO] Loading execution data file C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\build\jacoco.exec.
+[2026-09-15T09:52:29.819Z] [INFO] Analyzing 12 classes.
+[2026-09-15T09:52:29.819Z] 
+[2026-09-15T09:52:29.819Z] class                        line%  branch%
+[2026-09-15T09:52:29.819Z] Frames                       100.0    100.0
+[2026-09-15T09:52:29.819Z] OrbitalElements              100.0    100.0
+[2026-09-15T09:52:29.819Z] Vector3                      100.0    100.0
+[2026-09-15T09:52:29.819Z] TwoBodyPropagator            100.0    100.0
+[2026-09-15T09:52:29.819Z] GroundStation.LookAngles     100.0    100.0
+[2026-09-15T09:52:29.819Z] PassPredictor                100.0    100.0
+[2026-09-15T09:52:29.819Z] PassPredictor.Pass           100.0    100.0
+[2026-09-15T09:52:29.819Z] Frames.Geodetic              100.0    100.0
+[2026-09-15T09:52:29.819Z] Main                           0.0      0.0
+[2026-09-15T09:52:29.819Z] GroundStation                100.0    100.0
+[2026-09-15T09:52:29.819Z] KeplerSolver                  95.2     92.9
+[2026-09-15T09:52:29.819Z] StateVector                  100.0    100.0
+[2026-09-15T09:52:29.819Z] line=92.3% (192/208) branch=91.2% (93/102) gate: line>=90.0 branch>=85.0
+[2026-09-15T09:52:29.819Z] 
+[2026-09-15T09:52:29.819Z] ALL STEPS PASSED: coverage
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Mutation testing (PIT))
+[Pipeline] script
+[Pipeline] {
+[Pipeline] isUnix
+[Pipeline] bat
+[2026-09-15T09:52:30.223Z] 
+[2026-09-15T09:52:30.223Z] C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim>python build.py mutation 
+[2026-09-15T09:52:30.223Z] 
+[2026-09-15T09:52:30.223Z] ===== mutation =====
+[2026-09-15T09:52:30.223Z] $ java -cp C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\tools\pitest-command-line-1.20.1.jar;C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\tools\pitest-1.20.1.jar;C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\tools\pitest-entry-1.20.1.jar;C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\tools\pitest-junit5-plugin-1.2.3.jar;C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\tools\commons-text-1.13.1.jar;C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\tools\commons-lang3-3.17.0.jar;C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\tools\junit-platform-console-standalone-1.13.4.jar org.pitest.mutationtest.commandline.MutationCoverageReport --reportDir C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\build\reports\pit --targetClasses orbitsim.* --excludedClasses orbitsim.Main --targetTests orbitsim.*Test --sourceDirs C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\src\main\java --classPath C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\build\classes,C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\build\test-classes,C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\tools\junit-platform-console-standalone-1.13.4.jar --mutators STRONGER --outputFormats XML,HTML,CSV --timestampedReports=false --threads 6 --mutationThreshold 80
+[2026-09-15T09:52:30.790Z] ¿ÀÈÄ 6:52:30 PIT >> INFO : Verbose logging is disabled. If you encounter a problem, please enable it before reporting an issue.
+[2026-09-15T09:52:30.790Z] ¿ÀÈÄ 6:52:30 PIT >> INFO : Created 11 mutation test units in pre scan
+[2026-09-15T09:52:31.053Z] ¿ÀÈÄ 6:52:30 PIT >> INFO : Sending 9 test classes to minion
+[2026-09-15T09:52:31.053Z] ¿ÀÈÄ 6:52:30 PIT >> INFO : Sent tests to minion
+[2026-09-15T09:52:31.856Z] /-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-¿ÀÈÄ 6:52:31 PIT >> INFO : Calculated coverage in 1 seconds.
+[2026-09-15T09:52:31.856Z] ¿ÀÈÄ 6:52:31 PIT >> INFO : 0 tests took longer than 2000 ms
+[2026-09-15T09:52:31.856Z] ¿ÀÈÄ 6:52:31 PIT >> INFO : Slowest test ([engine:junit-jupiter]/[class:orbitsim.RobustnessTest]/[method:normalizeAngleRandomized()]) took 43 ms
+[2026-09-15T09:52:31.856Z] ¿ÀÈÄ 6:52:31 PIT >> INFO : Largest test ([engine:junit-jupiter]/[class:orbitsim.PassPredictorTest]/[method:maxElevationMatchesFineSampling()]) covered 267 blocks
+[2026-09-15T09:52:31.856Z] ¿ÀÈÄ 6:52:31 PIT >> INFO : Created 10 mutation test units
+[2026-09-15T09:52:38.449Z] ¿ÀÈÄ 6:52:38 PIT >> WARNING : Minion exited abnormally due to TIMED_OUT
+[2026-09-15T09:52:43.729Z] ¿ÀÈÄ 6:52:42 PIT >> WARNING : Minion exited abnormally due to TIMED_OUT
+[2026-09-15T09:52:47.891Z] ¿ÀÈÄ 6:52:47 PIT >> WARNING : Minion exited abnormally due to TIMED_OUT
+[2026-09-15T09:52:53.131Z] ¿ÀÈÄ 6:52:52 PIT >> WARNING : Minion exited abnormally due to TIMED_OUT
+[2026-09-15T09:52:57.315Z] ¿ÀÈÄ 6:52:57 PIT >> WARNING : Minion exited abnormally due to TIMED_OUT
+[2026-09-15T09:53:03.893Z] ¿ÀÈÄ 6:53:02 PIT >> WARNING : Minion exited abnormally due to TIMED_OUT
+[2026-09-15T09:53:08.077Z] ¿ÀÈÄ 6:53:07 PIT >> WARNING : Minion exited abnormally due to TIMED_OUT
+[2026-09-15T09:53:09.439Z] /-\|/-\|/-¿ÀÈÄ 6:53:09 PIT >> INFO : Completed in 38 seconds
+[2026-09-15T09:53:09.439Z] ================================================================================
+[2026-09-15T09:53:09.439Z] - Mutators
+[2026-09-15T09:53:09.439Z] ================================================================================
+[2026-09-15T09:53:09.439Z] > org.pitest.mutationtest.engine.gregor.mutators.RemoveConditionalMutator_ORDER_ELSE
+[2026-09-15T09:53:09.439Z] >> Generated 16 Killed 15 (94%)
+[2026-09-15T09:53:09.439Z] > KILLED 15 SURVIVED 1 TIMED_OUT 0 NON_VIABLE 0 
+[2026-09-15T09:53:09.439Z] > MEMORY_ERROR 0 NOT_STARTED 0 STARTED 0 RUN_ERROR 0 
+[2026-09-15T09:53:09.439Z] > NO_COVERAGE 0 
+[2026-09-15T09:53:09.439Z] --------------------------------------------------------------------------------
+[2026-09-15T09:53:09.439Z] > org.pitest.mutationtest.engine.gregor.mutators.ConditionalsBoundaryMutator
+[2026-09-15T09:53:09.439Z] >> Generated 16 Killed 7 (44%)
+[2026-09-15T09:53:09.439Z] > KILLED 6 SURVIVED 9 TIMED_OUT 1 NON_VIABLE 0 
+[2026-09-15T09:53:09.439Z] > MEMORY_ERROR 0 NOT_STARTED 0 STARTED 0 RUN_ERROR 0 
+[2026-09-15T09:53:09.439Z] > NO_COVERAGE 0 
+[2026-09-15T09:53:09.439Z] --------------------------------------------------------------------------------
+[2026-09-15T09:53:09.439Z] > org.pitest.mutationtest.engine.gregor.mutators.returns.PrimitiveReturnsMutator
+[2026-09-15T09:53:09.439Z] >> Generated 17 Killed 17 (100%)
+[2026-09-15T09:53:09.439Z] > KILLED 17 SURVIVED 0 TIMED_OUT 0 NON_VIABLE 0 
+[2026-09-15T09:53:09.439Z] > MEMORY_ERROR 0 NOT_STARTED 0 STARTED 0 RUN_ERROR 0 
+[2026-09-15T09:53:09.439Z] > NO_COVERAGE 0 
+[2026-09-15T09:53:09.439Z] --------------------------------------------------------------------------------
+[2026-09-15T09:53:09.439Z] > org.pitest.mutationtest.engine.gregor.mutators.returns.BooleanTrueReturnValsMutator
+[2026-09-15T09:53:09.439Z] >> Generated 1 Killed 1 (100%)
+[2026-09-15T09:53:09.439Z] > KILLED 1 SURVIVED 0 TIMED_OUT 0 NON_VIABLE 0 
+[2026-09-15T09:53:09.439Z] > MEMORY_ERROR 0 NOT_STARTED 0 STARTED 0 RUN_ERROR 0 
+[2026-09-15T09:53:09.439Z] > NO_COVERAGE 0 
+[2026-09-15T09:53:09.439Z] --------------------------------------------------------------------------------
+[2026-09-15T09:53:09.439Z] > org.pitest.mutationtest.engine.gregor.mutators.InvertNegsMutator
+[2026-09-15T09:53:09.439Z] >> Generated 4 Killed 4 (100%)
+[2026-09-15T09:53:09.439Z] > KILLED 4 SURVIVED 0 TIMED_OUT 0 NON_VIABLE 0 
+[2026-09-15T09:53:09.439Z] > MEMORY_ERROR 0 NOT_STARTED 0 STARTED 0 RUN_ERROR 0 
+[2026-09-15T09:53:09.439Z] > NO_COVERAGE 0 
+[2026-09-15T09:53:09.439Z] --------------------------------------------------------------------------------
+[2026-09-15T09:53:09.440Z] > org.pitest.mutationtest.engine.gregor.mutators.RemoveConditionalMutator_EQUAL_ELSE
+[2026-09-15T09:53:09.440Z] >> Generated 18 Killed 18 (100%)
+[2026-09-15T09:53:09.440Z] > KILLED 18 SURVIVED 0 TIMED_OUT 0 NON_VIABLE 0 
+[2026-09-15T09:53:09.440Z] > MEMORY_ERROR 0 NOT_STARTED 0 STARTED 0 RUN_ERROR 0 
+[2026-09-15T09:53:09.440Z] > NO_COVERAGE 0 
+[2026-09-15T09:53:09.440Z] --------------------------------------------------------------------------------
+[2026-09-15T09:53:09.440Z] > org.pitest.mutationtest.engine.gregor.mutators.returns.NullReturnValsMutator
+[2026-09-15T09:53:09.440Z] >> Generated 16 Killed 16 (100%)
+[2026-09-15T09:53:09.440Z] > KILLED 16 SURVIVED 0 TIMED_OUT 0 NON_VIABLE 0 
+[2026-09-15T09:53:09.440Z] > MEMORY_ERROR 0 NOT_STARTED 0 STARTED 0 RUN_ERROR 0 
+[2026-09-15T09:53:09.440Z] > NO_COVERAGE 0 
+[2026-09-15T09:53:09.440Z] --------------------------------------------------------------------------------
+[2026-09-15T09:53:09.440Z] > org.pitest.mutationtest.engine.gregor.mutators.RemoveConditionalMutator_ORDER_IF
+[2026-09-15T09:53:09.440Z] >> Generated 16 Killed 15 (94%)
+[2026-09-15T09:53:09.440Z] > KILLED 12 SURVIVED 1 TIMED_OUT 3 NON_VIABLE 0 
+[2026-09-15T09:53:09.440Z] > MEMORY_ERROR 0 NOT_STARTED 0 STARTED 0 RUN_ERROR 0 
+[2026-09-15T09:53:09.440Z] > NO_COVERAGE 0 
+[2026-09-15T09:53:09.440Z] --------------------------------------------------------------------------------
+[2026-09-15T09:53:09.440Z] > org.pitest.mutationtest.engine.gregor.mutators.MathMutator
+[2026-09-15T09:53:09.440Z] >> Generated 127 Killed 123 (97%)
+[2026-09-15T09:53:09.440Z] > KILLED 120 SURVIVED 4 TIMED_OUT 3 NON_VIABLE 0 
+[2026-09-15T09:53:09.440Z] > MEMORY_ERROR 0 NOT_STARTED 0 STARTED 0 RUN_ERROR 0 
+[2026-09-15T09:53:09.440Z] > NO_COVERAGE 0 
+[2026-09-15T09:53:09.440Z] --------------------------------------------------------------------------------
+[2026-09-15T09:53:09.440Z] > org.pitest.mutationtest.engine.gregor.mutators.returns.EmptyObjectReturnValsMutator
+[2026-09-15T09:53:09.440Z] >> Generated 1 Killed 1 (100%)
+[2026-09-15T09:53:09.440Z] > KILLED 1 SURVIVED 0 TIMED_OUT 0 NON_VIABLE 0 
+[2026-09-15T09:53:09.440Z] > MEMORY_ERROR 0 NOT_STARTED 0 STARTED 0 RUN_ERROR 0 
+[2026-09-15T09:53:09.440Z] > NO_COVERAGE 0 
+[2026-09-15T09:53:09.440Z] --------------------------------------------------------------------------------
+[2026-09-15T09:53:09.440Z] > org.pitest.mutationtest.engine.gregor.mutators.RemoveConditionalMutator_EQUAL_IF
+[2026-09-15T09:53:09.441Z] >> Generated 18 Killed 14 (78%)
+[2026-09-15T09:53:09.441Z] > KILLED 14 SURVIVED 4 TIMED_OUT 0 NON_VIABLE 0 
+[2026-09-15T09:53:09.441Z] > MEMORY_ERROR 0 NOT_STARTED 0 STARTED 0 RUN_ERROR 0 
+[2026-09-15T09:53:09.441Z] > NO_COVERAGE 0 
+[2026-09-15T09:53:09.441Z] --------------------------------------------------------------------------------
+[2026-09-15T09:53:09.441Z] ================================================================================
+[2026-09-15T09:53:09.441Z] - Timings
+[2026-09-15T09:53:09.441Z] ================================================================================
+[2026-09-15T09:53:09.441Z] > pre-scan for mutations : < 1 second
+[2026-09-15T09:53:09.441Z] > scan classpath : < 1 second
+[2026-09-15T09:53:09.441Z] > coverage and dependency analysis : 1 seconds
+[2026-09-15T09:53:09.441Z] > build mutation tests : < 1 second
+[2026-09-15T09:53:09.441Z] > run mutation analysis : 37 seconds
+[2026-09-15T09:53:09.441Z] --------------------------------------------------------------------------------
+[2026-09-15T09:53:09.441Z] > Total  : 38 seconds
+[2026-09-15T09:53:09.441Z] --------------------------------------------------------------------------------
+[2026-09-15T09:53:09.441Z] > 0 tests took longer than 2000 ms
+[2026-09-15T09:53:09.441Z] > Slowest test ([engine:junit-jupiter]/[class:orbitsim.RobustnessTest]/[method:normalizeAngleRandomized()]) took 43 ms
+[2026-09-15T09:53:09.441Z] > Largest test ([engine:junit-jupiter]/[class:orbitsim.PassPredictorTest]/[method:maxElevationMatchesFineSampling()]) covered 267 blocks
+[2026-09-15T09:53:09.441Z] ================================================================================
+[2026-09-15T09:53:09.441Z] - Statistics
+[2026-09-15T09:53:09.441Z] ================================================================================
+[2026-09-15T09:53:09.441Z] >> Line Coverage (for mutated classes only): 192/197 (97%)
+[2026-09-15T09:53:09.441Z] >> 9 tests examined
+[2026-09-15T09:53:09.441Z] >> Generated 250 mutations Killed 231 (92%)
+[2026-09-15T09:53:09.441Z] >> Mutations with no coverage 0. Test strength 92%
+[2026-09-15T09:53:09.441Z] >> Ran 1136 tests (4.54 tests per mutation)
+[2026-09-15T09:53:09.441Z] Enhanced functionality available at https://www.arcmutate.com/
+[2026-09-15T09:53:09.441Z] mutation score=92.4% (231/250 detected) gate>=80.0
+[2026-09-15T09:53:09.441Z] 
+[2026-09-15T09:53:09.441Z] ALL STEPS PASSED: mutation
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Static analysis (PMD Â· SpotBugs))
+[Pipeline] script
+[Pipeline] {
+[Pipeline] isUnix
+[Pipeline] bat
+[2026-09-15T09:53:09.843Z] 
+[2026-09-15T09:53:09.843Z] C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim>python build.py pmd spotbugs 
+[2026-09-15T09:53:09.843Z] 
+[2026-09-15T09:53:09.843Z] ===== pmd =====
+[2026-09-15T09:53:09.843Z] $ C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\tools\pmd-bin-7.14.0\bin\pmd.bat check -d C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\src\main\java -R C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\tools\pmd-ruleset.xml -f text -r C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\build\reports\pmd.txt --no-cache --no-progress
+[2026-09-15T09:53:15.096Z] PMD: 0 violations
+[2026-09-15T09:53:15.096Z] 
+[2026-09-15T09:53:15.096Z] ===== spotbugs =====
+[2026-09-15T09:53:15.096Z] $ java -jar C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\tools\spotbugs-4.9.3\lib\spotbugs.jar -textui -effort:max -low -output C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\build\reports\spotbugs.txt C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\build\classes
+[2026-09-15T09:53:17.614Z] SpotBugs: 0 bugs
+[2026-09-15T09:53:17.614Z] 
+[2026-09-15T09:53:17.614Z] ALL STEPS PASSED: pmd, spotbugs
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Requirements traceability)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] isUnix
+[Pipeline] bat
+[2026-09-15T09:53:17.997Z] 
+[2026-09-15T09:53:17.997Z] C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim>python build.py trace 
+[2026-09-15T09:53:17.997Z] 
+[2026-09-15T09:53:17.997Z] ===== trace =====
+[2026-09-15T09:53:17.997Z] $ C:\Python314\python.exe C:\Users\ssung\Workspace\projects\.jenkins-orbit\workspace\orbit-pass-sim\tools\trace.py
+[2026-09-15T09:53:17.997Z] traceability: 24/24 requirements verified ¡æ docs\traceability.md
+[2026-09-15T09:53:17.997Z] 
+[2026-09-15T09:53:17.997Z] ALL STEPS PASSED: trace
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] junit
+[2026-09-15T09:53:18.404Z] Recording test results
+[2026-09-15T09:53:18.499Z] [Checks API] No suitable checks publisher found.
+[Pipeline] archiveArtifacts
+[2026-09-15T09:53:18.517Z] Archiving artifacts
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // timeout
+[Pipeline] }
+[Pipeline] // timestamps
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS
