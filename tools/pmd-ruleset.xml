@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<ruleset name="orbit-pass-sim"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+    <description>PMD quickstart 에서 수치 계산 코드와 맞지 않는 규칙 하나만 뺀다.</description>
+    <rule ref="rulesets/java/quickstart.xml">
+        <!-- `!(a > b)` 는 NaN 을 거부하려고 일부러 쓴다. `a <= b` 로 바꾸면 NaN 이 통과한다 -->
+        <exclude name="LogicInversion"/>
+    </rule>
+</ruleset>
