@@ -5,19 +5,22 @@
 Java 전파기는 케플러 방정식을 푸는 **해석해**다. 여기서는 케플러 방정식을 전혀 쓰지 않고
 초기 상태에서 미분방정식을 직접 적분하므로, 두 결과가 맞으면 서로 다른 방법이 같은 답을 낸 것이다.
 
-  python tools/gen_golden_rk4.py      # → src/test/resources/golden/rk4_states.csv
+  python tools/gen_golden_rk4.py           # → src/test/resources/golden/rk4_states.csv
+  python tools/gen_golden_rk4.py --check   # 다시 계산해 저장된 파일과 허용 오차(1e-6 km, 1e-9 km/s) 안인지 확인
 
-표준 라이브러리만 쓴다. 출력은 결정적이다(같은 입력 → 같은 파일).
+표준 라이브러리만 쓴다. OS 마다 libm 의 sin·cos 마지막 자리가 다를 수 있어 재현성은 문자열이 아니라 수치로 비교한다.
 """
 from __future__ import annotations
 
 import csv
 import math
+import sys
 from pathlib import Path
 
 MU = 398600.4418          # km^3/s^2 — Java Constants.MU_EARTH 와 같은 값
 DT = 0.5                  # s — 근지점 부근 고타원 궤도에서도 0.01 km 기준을 여유 있게 지키는 간격
 OUT = Path(__file__).resolve().parent.parent / "src" / "test" / "resources" / "golden" / "rk4_states.csv"
+LF = chr(10)
 
 # name, a[km], e, i[deg], raan[deg], argp[deg]  — 에포크는 근지점(M0 = 0)
 ORBITS = [
@@ -73,8 +76,7 @@ def rk4_step(r, v, h):
     return r_next, v_next
 
 
-def main() -> None:
-    OUT.parent.mkdir(parents=True, exist_ok=True)
+def generate() -> list[list]:
     rows = []
     for name, a, e, i_deg, raan_deg, argp_deg in ORBITS:
         period = 2 * math.pi * math.sqrt(a ** 3 / MU)
@@ -89,12 +91,38 @@ def main() -> None:
             rows.append([name, a, e, i_deg, raan_deg, argp_deg, f"{target:.1f}",
                          *(f"{x:.9f}" for x in r), *(f"{x:.12f}" for x in v)])
         print(f"{name:<9} T={period:9.1f}s  checkpoints={len(checkpoints)}")
+    return rows
+
+
+def check(rows: list[list]) -> int:
+    with open(OUT, encoding="utf-8", newline="") as f:
+        stored = list(csv.reader(f))[1:]
+    if len(stored) != len(rows):
+        print(f"row count differs: stored {len(stored)} vs regenerated {len(rows)}")
+        return 1
+    worst_r = worst_v = 0.0
+    for old, new in zip(stored, rows):
+        if old[:7] != [str(x) for x in new[:7]]:
+            print(f"key columns differ: {old[:7]} vs {new[:7]}")
+            return 1
+        worst_r = max(worst_r, max(abs(float(old[k]) - float(new[k])) for k in range(7, 10)))
+        worst_v = max(worst_v, max(abs(float(old[k]) - float(new[k])) for k in range(10, 13)))
+    ok = worst_r <= 1e-6 and worst_v <= 1e-9
+    print(f"golden check: max |dr|={worst_r:.3e} km, max |dv|={worst_v:.3e} km/s -> {'OK' if ok else 'MISMATCH'}")
+    return 0 if ok else 1
+
+
+def main() -> None:
+    rows = generate()
+    if "--check" in sys.argv:
+        sys.exit(check(rows))
+    OUT.parent.mkdir(parents=True, exist_ok=True)
     with open(OUT, "w", newline="", encoding="utf-8") as f:
-        w = csv.writer(f)
+        w = csv.writer(f, lineterminator=LF)
         w.writerow(["name", "a_km", "e", "i_deg", "raan_deg", "argp_deg", "t_s",
                     "x_km", "y_km", "z_km", "vx_kms", "vy_kms", "vz_kms"])
         w.writerows(rows)
-    print(f"wrote {len(rows)} rows → {OUT}")
+    print(f"wrote {len(rows)} rows -> {OUT}")
 
 
 if __name__ == "__main__":

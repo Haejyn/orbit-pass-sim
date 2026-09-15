@@ -161,6 +161,8 @@ class PassPredictorTest {
         assertThrows(IllegalArgumentException.class, () -> pp.predict(200, 100, 10));
         assertThrows(IllegalArgumentException.class, () -> pp.predict(0, 100, 0));
         assertThrows(IllegalArgumentException.class, () -> pp.predict(0, 100, 101));
+        // 창 시작이 0 이 아닐 때 창 길이는 end − start 다 (PIT: end + start 로 바꾼 뮤턴트가 살아남았다)
+        assertThrows(IllegalArgumentException.class, () -> pp.predict(1000, 1100, 150));
         assertThrows(IllegalArgumentException.class, () -> new PassPredictor(ISS_LIKE, DAEJEON, 0.0, 90.0));
         assertThrows(IllegalArgumentException.class, () -> new PassPredictor(ISS_LIKE, DAEJEON, 0.0, -90.1));
         assertThrows(IllegalArgumentException.class, () -> new PassPredictor(ISS_LIKE, DAEJEON, 0.0, Double.NaN));
