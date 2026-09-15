@@ -1,0 +1,174 @@
+
+===== compile =====
+$ javac --release 21 -Xlint:all -Werror -d C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\classes C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\main\java\orbitsim\Constants.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\main\java\orbitsim\Frames.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\main\java\orbitsim\GroundStation.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\main\java\orbitsim\KeplerSolver.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\main\java\orbitsim\Main.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\main\java\orbitsim\OrbitalElements.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\main\java\orbitsim\PassPredictor.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\main\java\orbitsim\StateVector.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\main\java\orbitsim\TwoBodyPropagator.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\main\java\orbitsim\Vector3.java
+$ javac --release 21 -Xlint:all -Werror -cp C:\Users\ssung\Workspace\projects\orbit-pass-sim\tools\junit-platform-console-standalone-1.13.4.jar;C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\classes -d C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\test-classes C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\test\java\orbitsim\FramesTest.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\test\java\orbitsim\GoldenRk4Test.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\test\java\orbitsim\GroundStationTest.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\test\java\orbitsim\KeplerSolverTest.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\test\java\orbitsim\OrbitalElementsTest.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\test\java\orbitsim\PassPredictorTest.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\test\java\orbitsim\RobustnessTest.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\test\java\orbitsim\TwoBodyPropagatorTest.java C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\test\java\orbitsim\Vector3Test.java
+
+===== test =====
+$ java -javaagent:C:\Users\ssung\Workspace\projects\orbit-pass-sim\tools\jacoco-0.8.13\lib\jacocoagent.jar=destfile=C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\jacoco.exec -jar C:\Users\ssung\Workspace\projects\orbit-pass-sim\tools\junit-platform-console-standalone-1.13.4.jar execute -cp C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\classes;C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\test-classes --scan-classpath C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\test-classes --details=summary --details-theme=ascii --reports-dir C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\reports\junit
+stty: /dev/tty: No such device or address
+
+ðŸ’š [3mThanks for using JUnit![23m[0m Support its development at [4mhttps://junit.org/sponsoring[24m[0m
+
+
+Test run finished after 549 ms
+[        21 containers found      ]
+[         0 containers skipped    ]
+[        21 containers started    ]
+[         0 containers aborted    ]
+[        21 containers successful ]
+[         0 containers failed     ]
+[       126 tests found           ]
+[         0 tests skipped         ]
+[       126 tests started         ]
+[         0 tests aborted         ]
+[       126 tests successful      ]
+[         0 tests failed          ]
+
+tests=126 failures=0 errors=0 skipped=0 time=0.424s
+
+===== coverage =====
+$ java -jar C:\Users\ssung\Workspace\projects\orbit-pass-sim\tools\jacoco-0.8.13\lib\jacococli.jar report C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\jacoco.exec --classfiles C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\classes --sourcefiles C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\main\java --html C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\reports\jacoco --xml C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\reports\jacoco.xml --csv C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\reports\jacoco.csv --name orbit-pass-sim
+[INFO] Loading execution data file C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\jacoco.exec.
+[INFO] Analyzing 12 classes.
+
+class                        line%  branch%
+Frames                       100.0    100.0
+OrbitalElements              100.0    100.0
+Vector3                      100.0    100.0
+TwoBodyPropagator            100.0    100.0
+GroundStation.LookAngles     100.0    100.0
+PassPredictor                100.0    100.0
+PassPredictor.Pass           100.0    100.0
+Frames.Geodetic              100.0    100.0
+Main                           0.0      0.0
+GroundStation                100.0    100.0
+KeplerSolver                  95.2     92.9
+StateVector                  100.0    100.0
+line=92.3% (192/208) branch=91.2% (93/102) gate: line>=90.0 branch>=85.0
+
+===== mutation =====
+$ java -cp C:\Users\ssung\Workspace\projects\orbit-pass-sim\tools\pitest-command-line-1.20.1.jar;C:\Users\ssung\Workspace\projects\orbit-pass-sim\tools\pitest-1.20.1.jar;C:\Users\ssung\Workspace\projects\orbit-pass-sim\tools\pitest-entry-1.20.1.jar;C:\Users\ssung\Workspace\projects\orbit-pass-sim\tools\pitest-junit5-plugin-1.2.3.jar;C:\Users\ssung\Workspace\projects\orbit-pass-sim\tools\commons-text-1.13.1.jar;C:\Users\ssung\Workspace\projects\orbit-pass-sim\tools\commons-lang3-3.17.0.jar;C:\Users\ssung\Workspace\projects\orbit-pass-sim\tools\junit-platform-console-standalone-1.13.4.jar org.pitest.mutationtest.commandline.MutationCoverageReport --reportDir C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\reports\pit --targetClasses orbitsim.* --excludedClasses orbitsim.Main --targetTests orbitsim.*Test --sourceDirs C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\main\java --classPath C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\classes,C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\test-classes,C:\Users\ssung\Workspace\projects\orbit-pass-sim\tools\junit-platform-console-standalone-1.13.4.jar --mutators STRONGER --outputFormats XML,HTML,CSV --timestampedReports=false --threads 6 --mutationThreshold 80
+¿ÀÈÄ 6:46:37 PIT >> INFO : Verbose logging is disabled. If you encounter a problem, please enable it before reporting an issue.
+¿ÀÈÄ 6:46:37 PIT >> INFO : Created 11 mutation test units in pre scan
+¿ÀÈÄ 6:46:37 PIT >> INFO : Sending 9 test classes to minion
+¿ÀÈÄ 6:46:37 PIT >> INFO : Sent tests to minion
+/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-¿ÀÈÄ 6:46:38 PIT >> INFO : Calculated coverage in 1 seconds.
+¿ÀÈÄ 6:46:38 PIT >> INFO : 0 tests took longer than 2000 ms
+¿ÀÈÄ 6:46:38 PIT >> INFO : Slowest test ([engine:junit-jupiter]/[class:orbitsim.RobustnessTest]/[method:normalizeAngleRandomized()]) took 48 ms
+¿ÀÈÄ 6:46:38 PIT >> INFO : Largest test ([engine:junit-jupiter]/[class:orbitsim.PassPredictorTest]/[method:maxElevationMatchesFineSampling()]) covered 267 blocks
+¿ÀÈÄ 6:46:38 PIT >> INFO : Created 10 mutation test units
+¿ÀÈÄ 6:46:44 PIT >> WARNING : Minion exited abnormally due to TIMED_OUT
+¿ÀÈÄ 6:46:49 PIT >> WARNING : Minion exited abnormally due to TIMED_OUT
+¿ÀÈÄ 6:46:54 PIT >> WARNING : Minion exited abnormally due to TIMED_OUT
+¿ÀÈÄ 6:46:59 PIT >> WARNING : Minion exited abnormally due to TIMED_OUT
+¿ÀÈÄ 6:47:03 PIT >> WARNING : Minion exited abnormally due to TIMED_OUT
+¿ÀÈÄ 6:47:09 PIT >> WARNING : Minion exited abnormally due to TIMED_OUT
+¿ÀÈÄ 6:47:14 PIT >> WARNING : Minion exited abnormally due to TIMED_OUT
+/-\|/-\|/-¿ÀÈÄ 6:47:16 PIT >> INFO : Completed in 39 seconds
+================================================================================
+- Mutators
+================================================================================
+> org.pitest.mutationtest.engine.gregor.mutators.RemoveConditionalMutator_ORDER_ELSE
+>> Generated 16 Killed 15 (94%)
+> KILLED 15 SURVIVED 1 TIMED_OUT 0 NON_VIABLE 0 
+> MEMORY_ERROR 0 NOT_STARTED 0 STARTED 0 RUN_ERROR 0 
+> NO_COVERAGE 0 
+--------------------------------------------------------------------------------
+> org.pitest.mutationtest.engine.gregor.mutators.ConditionalsBoundaryMutator
+>> Generated 16 Killed 7 (44%)
+> KILLED 6 SURVIVED 9 TIMED_OUT 1 NON_VIABLE 0 
+> MEMORY_ERROR 0 NOT_STARTED 0 STARTED 0 RUN_ERROR 0 
+> NO_COVERAGE 0 
+--------------------------------------------------------------------------------
+> org.pitest.mutationtest.engine.gregor.mutators.returns.PrimitiveReturnsMutator
+>> Generated 17 Killed 17 (100%)
+> KILLED 17 SURVIVED 0 TIMED_OUT 0 NON_VIABLE 0 
+> MEMORY_ERROR 0 NOT_STARTED 0 STARTED 0 RUN_ERROR 0 
+> NO_COVERAGE 0 
+--------------------------------------------------------------------------------
+> org.pitest.mutationtest.engine.gregor.mutators.returns.BooleanTrueReturnValsMutator
+>> Generated 1 Killed 1 (100%)
+> KILLED 1 SURVIVED 0 TIMED_OUT 0 NON_VIABLE 0 
+> MEMORY_ERROR 0 NOT_STARTED 0 STARTED 0 RUN_ERROR 0 
+> NO_COVERAGE 0 
+--------------------------------------------------------------------------------
+> org.pitest.mutationtest.engine.gregor.mutators.InvertNegsMutator
+>> Generated 4 Killed 4 (100%)
+> KILLED 4 SURVIVED 0 TIMED_OUT 0 NON_VIABLE 0 
+> MEMORY_ERROR 0 NOT_STARTED 0 STARTED 0 RUN_ERROR 0 
+> NO_COVERAGE 0 
+--------------------------------------------------------------------------------
+> org.pitest.mutationtest.engine.gregor.mutators.RemoveConditionalMutator_EQUAL_ELSE
+>> Generated 18 Killed 18 (100%)
+> KILLED 18 SURVIVED 0 TIMED_OUT 0 NON_VIABLE 0 
+> MEMORY_ERROR 0 NOT_STARTED 0 STARTED 0 RUN_ERROR 0 
+> NO_COVERAGE 0 
+--------------------------------------------------------------------------------
+> org.pitest.mutationtest.engine.gregor.mutators.returns.NullReturnValsMutator
+>> Generated 16 Killed 16 (100%)
+> KILLED 16 SURVIVED 0 TIMED_OUT 0 NON_VIABLE 0 
+> MEMORY_ERROR 0 NOT_STARTED 0 STARTED 0 RUN_ERROR 0 
+> NO_COVERAGE 0 
+--------------------------------------------------------------------------------
+> org.pitest.mutationtest.engine.gregor.mutators.RemoveConditionalMutator_ORDER_IF
+>> Generated 16 Killed 15 (94%)
+> KILLED 12 SURVIVED 1 TIMED_OUT 3 NON_VIABLE 0 
+> MEMORY_ERROR 0 NOT_STARTED 0 STARTED 0 RUN_ERROR 0 
+> NO_COVERAGE 0 
+--------------------------------------------------------------------------------
+> org.pitest.mutationtest.engine.gregor.mutators.MathMutator
+>> Generated 127 Killed 122 (96%)
+> KILLED 119 SURVIVED 5 TIMED_OUT 3 NON_VIABLE 0 
+> MEMORY_ERROR 0 NOT_STARTED 0 STARTED 0 RUN_ERROR 0 
+> NO_COVERAGE 0 
+--------------------------------------------------------------------------------
+> org.pitest.mutationtest.engine.gregor.mutators.returns.EmptyObjectReturnValsMutator
+>> Generated 1 Killed 1 (100%)
+> KILLED 1 SURVIVED 0 TIMED_OUT 0 NON_VIABLE 0 
+> MEMORY_ERROR 0 NOT_STARTED 0 STARTED 0 RUN_ERROR 0 
+> NO_COVERAGE 0 
+--------------------------------------------------------------------------------
+> org.pitest.mutationtest.engine.gregor.mutators.RemoveConditionalMutator_EQUAL_IF
+>> Generated 18 Killed 14 (78%)
+> KILLED 14 SURVIVED 4 TIMED_OUT 0 NON_VIABLE 0 
+> MEMORY_ERROR 0 NOT_STARTED 0 STARTED 0 RUN_ERROR 0 
+> NO_COVERAGE 0 
+--------------------------------------------------------------------------------
+================================================================================
+- Timings
+================================================================================
+> pre-scan for mutations : < 1 second
+> scan classpath : < 1 second
+> coverage and dependency analysis : 1 seconds
+> build mutation tests : < 1 second
+> run mutation analysis : 37 seconds
+--------------------------------------------------------------------------------
+> Total  : 39 seconds
+--------------------------------------------------------------------------------
+> 0 tests took longer than 2000 ms
+> Slowest test ([engine:junit-jupiter]/[class:orbitsim.RobustnessTest]/[method:normalizeAngleRandomized()]) took 48 ms
+> Largest test ([engine:junit-jupiter]/[class:orbitsim.PassPredictorTest]/[method:maxElevationMatchesFineSampling()]) covered 267 blocks
+================================================================================
+- Statistics
+================================================================================
+>> Line Coverage (for mutated classes only): 192/197 (97%)
+>> 9 tests examined
+>> Generated 250 mutations Killed 230 (92%)
+>> Mutations with no coverage 0. Test strength 92%
+>> Ran 1139 tests (4.56 tests per mutation)
+Enhanced functionality available at https://www.arcmutate.com/
+mutation score=92.0% (230/250 detected) gate>=80.0
+
+===== pmd =====
+$ C:\Users\ssung\Workspace\projects\orbit-pass-sim\tools\pmd-bin-7.14.0\bin\pmd.bat check -d C:\Users\ssung\Workspace\projects\orbit-pass-sim\src\main\java -R C:\Users\ssung\Workspace\projects\orbit-pass-sim\tools\pmd-ruleset.xml -f text -r C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\reports\pmd.txt --no-cache --no-progress
+PMD: 0 violations
+
+===== spotbugs =====
+$ java -jar C:\Users\ssung\Workspace\projects\orbit-pass-sim\tools\spotbugs-4.9.3\lib\spotbugs.jar -textui -effort:max -low -output C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\reports\spotbugs.txt C:\Users\ssung\Workspace\projects\orbit-pass-sim\build\classes
+SpotBugs: 0 bugs
+
+===== trace =====
+$ C:\Python314\python.exe C:\Users\ssung\Workspace\projects\orbit-pass-sim\tools\trace.py
+traceability: 24/24 requirements verified â†’ docs\traceability.md
+
+ALL STEPS PASSED: compile, test, coverage, mutation, pmd, spotbugs, trace

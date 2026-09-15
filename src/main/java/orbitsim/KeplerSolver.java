@@ -25,7 +25,11 @@ public final class KeplerSolver {
             throw new IllegalArgumentException("eccentricity must be in [0,1): " + eccentricity);
         }
         final double e = eccentricity;
-        final double m = meanAnomaly;
+        // [D-4] |M| 이 크면 인접한 double 사이 간격(ulp)이 TOLERANCE 보다 커져 뉴턴 보정이 두 값 사이를
+        // 영원히 오가며 수렴 판정을 못 한다 (|M|≈1e6 부터 무작위 입력의 약 16% 실패, 1년 전파에서도 재현).
+        // 해의 2π 주기성(E(M+2πk) = E(M)+2πk)을 이용해 [-π, π] 에서 풀고 회전수를 되돌린다.
+        final double m = Math.IEEEremainder(meanAnomaly, 2.0 * Math.PI);
+        final double revolutions = meanAnomaly - m;
         // 초기값: e 가 크면 M 근처에서 시작하면 발산할 수 있어 sin(M) 방향으로 e 만큼 민다.
         double eAnom = e < 0.8 ? m : m + Math.copySign(e, Math.sin(m));
         for (int i = 0; i < MAX_ITERATIONS; i++) {
@@ -34,10 +38,10 @@ public final class KeplerSolver {
             double delta = f / fp;
             eAnom -= delta;
             if (Math.abs(delta) < TOLERANCE) {
-                return eAnom;
+                return eAnom + revolutions;
             }
         }
-        throw new ArithmeticException("Kepler solver did not converge: M=" + m + " e=" + e);
+        throw new ArithmeticException("Kepler solver did not converge: M=" + meanAnomaly + " e=" + e);
     }
 
     /** 이심 근점 이각 → 진근점 이각 ν [rad]. */

@@ -3,6 +3,7 @@ package orbitsim;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -11,6 +12,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 class KeplerSolverTest {
 
     @Test
+    @Tag("REQ-KEP-01")
     @DisplayName("원궤도(e=0)에서는 E = M")
     void circularOrbitReturnsMeanAnomaly() {
         for (double m = -10; m <= 10; m += 0.37) {
@@ -19,6 +21,7 @@ class KeplerSolverTest {
     }
 
     @ParameterizedTest(name = "e={0}")
+    @Tag("REQ-KEP-01")
     @ValueSource(doubles = {0.0, 0.1, 0.3, 0.5, 0.7, 0.8, 0.9, 0.95, 0.99})
     @DisplayName("전 범위 M 에 대해 잔차 |E − e·sinE − M| < 1e-11")
     void residualIsTinyAcrossMeanAnomalies(double e) {
@@ -39,11 +42,13 @@ class KeplerSolverTest {
         "5.0, 0.7, 4.3463686514876425",
     })
     @DisplayName("독립 구현과 대조 (M=0·π 는 해석해, 나머지는 Python 이분법으로 1e-15 까지 계산한 값)")
+    @Tag("REQ-KEP-02")
     void matchesKnownValues(double m, double e, double expectedE) {
         assertEquals(expectedE, KeplerSolver.solveEccentricAnomaly(m, e), 1e-9);
     }
 
     @ParameterizedTest
+    @Tag("REQ-KEP-04")
     @ValueSource(doubles = {-0.1, 1.0, 1.5, Double.POSITIVE_INFINITY})
     @DisplayName("이심률 범위 밖은 IllegalArgumentException")
     void rejectsEccentricityOutOfRange(double e) {
@@ -51,6 +56,7 @@ class KeplerSolverTest {
     }
 
     @Test
+    @Tag("REQ-KEP-04")
     @DisplayName("NaN 입력은 IllegalArgumentException")
     void rejectsNaN() {
         assertThrows(IllegalArgumentException.class, () -> KeplerSolver.solveEccentricAnomaly(Double.NaN, 0.1));
@@ -58,6 +64,7 @@ class KeplerSolverTest {
     }
 
     @ParameterizedTest
+    @Tag("REQ-KEP-03")
     @ValueSource(doubles = {0.0, 0.2, 0.6, 0.95})
     @DisplayName("진근점 이각 ↔ 이심 근점 이각 왕복 변환")
     void trueAnomalyRoundTrip(double e) {
@@ -68,6 +75,7 @@ class KeplerSolverTest {
     }
 
     @Test
+    @Tag("REQ-KEP-03")
     @DisplayName("근지점(E=0)·원지점(E=π)에서 ν 도 0·π")
     void apsidesMapToThemselves() {
         assertEquals(0.0, KeplerSolver.trueAnomaly(0.0, 0.7), 1e-15);

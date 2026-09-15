@@ -3,11 +3,13 @@ package orbitsim;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 class FramesTest {
 
     @Test
+    @Tag("REQ-FRM-01")
     @DisplayName("ECI→ECEF→ECI 왕복은 항등")
     void eciEcefRoundTrip() {
         Vector3 v = new Vector3(6000, -2000, 3000);
@@ -18,6 +20,7 @@ class FramesTest {
     }
 
     @Test
+    @Tag("REQ-FRM-01")
     @DisplayName("θ=0 이면 ECI 와 ECEF 가 같고, θ=π/2 면 x 축이 −y 로 간다")
     void knownRotations() {
         Vector3 x = new Vector3(1, 0, 0);
@@ -28,6 +31,7 @@ class FramesTest {
     }
 
     @Test
+    @Tag("REQ-FRM-02")
     @DisplayName("지구 자전각은 항성일(86164 s)마다 한 바퀴")
     void rotationAngleAdvancesOneTurnPerSiderealDay() {
         double theta0 = 1.234;
@@ -37,6 +41,7 @@ class FramesTest {
     }
 
     @Test
+    @Tag("REQ-FRM-01")
     @DisplayName("측지 ↔ ECEF 왕복 (극·적도·일반점)")
     void geodeticRoundTrip() {
         double[][] pts = {{0, 0, 0}, {Math.PI / 2, 0, 100}, {-Math.PI / 2, 1.0, 0},
@@ -53,6 +58,7 @@ class FramesTest {
     }
 
     @Test
+    @Tag("REQ-FRM-01")
     @DisplayName("적도 위 x 축 방향 점은 위도 0, 경도 0, 고도 = r − R")
     void equatorPrimeMeridian() {
         Frames.Geodetic g = Frames.ecefToGeodetic(new Vector3(Constants.R_EARTH + 400.0, 0, 0));
@@ -62,12 +68,14 @@ class FramesTest {
     }
 
     @Test
+    @Tag("REQ-FRM-01")
     @DisplayName("지구 중심은 측지 좌표가 없다")
     void centerHasNoGeodetic() {
         assertThrows(IllegalArgumentException.class, () -> Frames.ecefToGeodetic(Vector3.ZERO));
     }
 
     @Test
+    @Tag("REQ-FRM-03")
     @DisplayName("각도 정규화는 [0, 2π)")
     void normalizeAngle() {
         assertEquals(0.0, Frames.normalizeAngle(0.0));

@@ -46,10 +46,15 @@ public final class Frames {
                 r * Math.sin(g.latitude()));
     }
 
-    /** 각도를 [0, 2π) 로 정규화. */
+    /** 각도를 [0, 2π) 로 정규화. 2π 는 포함하지 않는다. */
     public static double normalizeAngle(double a) {
         double twoPi = 2.0 * Math.PI;
         double x = a % twoPi;
-        return x < 0 ? x + twoPi : x;
+        if (x < 0) {
+            x += twoPi;
+        }
+        // [D-5] x 가 −1e-16 처럼 아주 작은 음수면 x + 2π 가 반올림돼 정확히 2π 가 된다.
+        // 계약은 반열린 구간이므로 0 으로 접는다 (방위각 360.0° 가 나오던 원인).
+        return x >= twoPi ? 0.0 : x;
     }
 }

@@ -7,14 +7,25 @@ import zipfile
 from pathlib import Path
 
 TOOLS = Path(__file__).resolve().parent
+MAVEN = "https://repo1.maven.org/maven2"
+
 JUNIT_VERSION = "1.13.4"
 JACOCO_VERSION = "0.8.13"
 SPOTBUGS_VERSION = "4.9.3"
 PMD_VERSION = "7.14.0"
+PIT_VERSION = "1.20.1"
+PIT_JUNIT5_VERSION = "1.2.3"
 
-JUNIT_URL = (f"https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/"
-             f"{JUNIT_VERSION}/junit-platform-console-standalone-{JUNIT_VERSION}.jar")
-JACOCO_URL = f"https://repo1.maven.org/maven2/org/jacoco/jacoco/{JACOCO_VERSION}/jacoco-{JACOCO_VERSION}.zip"
+JARS = {
+    "junit": f"{MAVEN}/org/junit/platform/junit-platform-console-standalone/{JUNIT_VERSION}/junit-platform-console-standalone-{JUNIT_VERSION}.jar",
+    "pit_cli": f"{MAVEN}/org/pitest/pitest-command-line/{PIT_VERSION}/pitest-command-line-{PIT_VERSION}.jar",
+    "pit_core": f"{MAVEN}/org/pitest/pitest/{PIT_VERSION}/pitest-{PIT_VERSION}.jar",
+    "pit_entry": f"{MAVEN}/org/pitest/pitest-entry/{PIT_VERSION}/pitest-entry-{PIT_VERSION}.jar",
+    "pit_junit5": f"{MAVEN}/org/pitest/pitest-junit5-plugin/{PIT_JUNIT5_VERSION}/pitest-junit5-plugin-{PIT_JUNIT5_VERSION}.jar",
+    "commons_text": f"{MAVEN}/org/apache/commons/commons-text/1.13.1/commons-text-1.13.1.jar",
+    "commons_lang3": f"{MAVEN}/org/apache/commons/commons-lang3/3.17.0/commons-lang3-3.17.0.jar",
+}
+JACOCO_URL = f"{MAVEN}/org/jacoco/jacoco/{JACOCO_VERSION}/jacoco-{JACOCO_VERSION}.zip"
 SPOTBUGS_URL = f"https://github.com/spotbugs/spotbugs/releases/download/{SPOTBUGS_VERSION}/spotbugs-{SPOTBUGS_VERSION}.zip"
 PMD_URL = f"https://github.com/pmd/pmd/releases/download/pmd_releases%2F{PMD_VERSION}/pmd-dist-{PMD_VERSION}-bin.zip"
 
@@ -28,7 +39,7 @@ def download(url: str, dest: Path) -> Path:
 
 
 def ensure_all() -> dict[str, Path]:
-    junit = download(JUNIT_URL, TOOLS / f"junit-platform-console-standalone-{JUNIT_VERSION}.jar")
+    tools = {name: download(url, TOOLS / url.rsplit("/", 1)[1]) for name, url in JARS.items()}
 
     jacoco_dir = TOOLS / f"jacoco-{JACOCO_VERSION}"
     if not (jacoco_dir / "lib" / "jacocoagent.jar").exists():
@@ -49,16 +60,16 @@ def ensure_all() -> dict[str, Path]:
         z = download(PMD_URL, TOOLS / f"pmd-dist-{PMD_VERSION}-bin.zip")
         with zipfile.ZipFile(z) as zf:
             zf.extractall(TOOLS)
-        if os.name != "nt":
-            pmd_bin.chmod(0o755)
+    if os.name != "nt":
+        pmd_bin.chmod(0o755)
 
-    return {
-        "junit": junit,
+    tools.update({
         "jacoco_agent": jacoco_dir / "lib" / "jacocoagent.jar",
         "jacoco_cli": jacoco_dir / "lib" / "jacococli.jar",
         "spotbugs": spotbugs_dir / "lib" / "spotbugs.jar",
         "pmd_bin": pmd_bin,
-    }
+    })
+    return tools
 
 
 if __name__ == "__main__":
