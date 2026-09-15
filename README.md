@@ -1,7 +1,8 @@
 # orbit-pass-sim
 
 위성 궤도를 전파하고 지상국(대전)에서 위성이 언제 보이는지(패스: AOS·LOS·최대 고도각)를 예측하는 Java 시뮬레이터.
-**구현보다 신뢰성 시험 체계가 목적인 프로젝트다** — 요구사항을 시험 가능한 성질로 바꾸고, 정적·동적 시험을 CI 에서 자동으로 돌린다.
+**구현보다 신뢰성 시험 체계가 목적인 프로젝트다** — 요구사항을 판정 가능한 기준으로 쓰고, 기대값을 구현 밖에서 가져오고,
+정적·동적 시험과 결함 검출력 측정을 로컬·GitHub Actions·Jenkins 에서 같은 스크립트로 돌린다.
 
 ```
 $ java -cp build/classes orbitsim.Main          # ISS 급 궤도(420 km, 51.6°), 최소 고도각 10°
@@ -12,59 +13,71 @@ passes in 24h: 5
   ...
 ```
 
-## 구성
+## 결과 (2026-09-15)
 
-| 모듈 | 하는 일 |
-|---|---|
-| `KeplerSolver` | 케플러 방정식 M = E − e·sinE 를 뉴턴-랩슨으로 풀이, 진근점 이각 변환 |
-| `OrbitalElements` | 고전 궤도 요소 + 유효성 검사(이심률·경사각 범위, 근지점이 지표 위) · 주기 · 평균 운동 |
-| `TwoBodyPropagator` | 이체 문제 해석해: 궤도 요소 → PQW → ECI 위치·속도 |
-| `Frames` | ECI↔ECEF(지구 자전각), 측지↔ECEF(구형 지구) |
-| `GroundStation` | 지상국 기준 ENU 로 고도각·방위각·거리 |
-| `PassPredictor` | 시간 창을 훑어 가시 구간을 찾고 AOS·LOS 를 이분법으로 0.5 s 까지 좁힘 |
-
-범위 밖(의도적으로 다루지 않음): J2·대기항력 섭동, 세차·장동, 타원체 지구, TLE/SGP4. 가시성 예측의 목표 정밀도는 분 단위다.
-
-## 시험 전략
-
-요구사항마다 **틀리면 반드시 깨지는 성질**을 먼저 정하고, 정답값을 코드 밖에서 가져온다.
-
-| 층 | 무엇으로 검증하나 | 예 |
+| 항목 | 기준 | 결과 |
 |---|---|---|
-| 해석해·물리 법칙 | 정답이 공식으로 알려진 경우 | e=0 이면 E=M · 정지궤도 주기 = 항성일 86164 s · 에포크에 근지점 r=a(1−e) · 반주기 뒤 원지점 |
-| 보존량 (성질 기반) | 전 궤도에 걸쳐 불변이어야 하는 값 | 비에너지 −μ/2a 상대오차 1e-10 · 비각운동량 벡터 · h_z/|h| = cos i |
-| 독립 구현 대조 | 같은 문제를 다른 알고리즘으로 푼 값 | 케플러 해를 Python 이분법으로 계산한 값과 1e-9 일치 |
-| 왕복·대칭 | 변환 쌍이 항등인지 | ECI→ECEF→ECI · 측지→ECEF→측지 · ν↔E · 음수 시간 = 주기 대칭 |
-| 경계값·결함 입력 | 범위 끝과 바로 밖, NaN·∞ | e=0 허용·e=1 거부 · i=π 허용 · 위도 ±90.1 · 경도 ±180.1 · NaN 시간 · 근지점이 지표 아래 |
-| 시나리오·강건성 | 시스템 수준 기대 동작 | ISS 궤도는 대전에서 하루 3~8 패스·각 12분 이내 · 정지궤도는 고도각 일정(±0.05°)·패스 1개 · 적도 LEO 는 0 패스 · 스텝 10 s vs 60 s 결과 차이 ≤ 2 s · 마스크를 올리면 패스 수 단조 감소 · AOS/LOS 시각의 고도각이 마스크 ±0.5° |
+| 시험 | 실패 0 | **126 통과** |
+| 라인 / 분기 커버리지 (JaCoCo) | ≥ 90 % / ≥ 85 % | **92.3 % / 91.2 %** |
+| 뮤테이션 검출률 (PIT STRONGER) | ≥ 80 % | **92.4 %** (231/250) — 생존 19개 전부 동등 뮤턴트 판정 근거 기록 |
+| 요구사항 추적 | 전 REQ 검증 | **24 / 24** |
+| PMD · SpotBugs | 0 | 0 · 0 |
+| **발견·수정한 제품 결함** | — | **2건** — 장기 전파 시 케플러 비수렴(D-4), 방위각 360.0°(D-5) |
+
+→ [시험 보고서](docs/test-report.md) · [시험 계획서](docs/test-plan.md) · [요구사항](docs/requirements.md) · [추적 매트릭스](docs/traceability.md)
+
+## 찾은 결함
+
+예제 기반 시험 73개가 모두 통과하던 상태에서, 고정 시드 **성질 기반 무작위 시험**을 추가하자 두 결함이 드러났다. 수정 전 실패 로그는 `docs/evidence/` 에 있다.
+
+- **D-4 케플러 풀이 비수렴** — 평범한 궤도(a = 12,233 km, e = 0.24)를 1년만 전파해도 예외. 평균 근점 이각이 커지면 double 간격(ulp)이 수렴 기준 1e-12 보다 커져 뉴턴 보정이 진동한다. 2π 주기성으로 [−π, π] 에서 풀도록 수정.
+- **D-5 방위각 360.0°** — `normalizeAngle(-1e-16)` 이 반올림으로 정확히 2π 를 반환. 반열린 구간 [0, 2π) 계약 위반. 기존 시험은 −1e-9 로만 확인해 놓쳤다.
+
+## 시험 전략 — 기대값을 구현 밖에서 가져온다
+
+| 기법 | 기대값 출처 | 예 |
+|---|---|---|
+| 해석해 | 닫힌 형태의 공식 | e=0 → E=M · 정지궤도 주기 = 항성일 · 근지점 r=a(1−e) |
+| 물리 보존량 | 이체 운동의 불변량 | 비에너지 −μ/2a (상대오차 1e-10) · 비각운동량 벡터 |
+| 독립 구현 | 다른 알고리즘 | 케플러 해 = Python 이분법 · 전파 결과 = **Python RK4 수치 적분** (궤도 5종, 0.01 km) |
+| 독립 기하 | 따로 구성한 기저 | 중위도 지상국의 동·북·천정을 외적으로 만들어 방위각·고도각 대조 |
+| 경계값 | 명세 범위 끝·바로 밖·NaN·±∞·−0.0 | e=1 거부 · i=π 허용 · −Double.MIN_VALUE 정규화 |
+| 성질 기반 무작위 | 고정 시드 불변식 (최대 100,000 건) | \|M\| 10³~10¹⁵ 케플러 · 1,000년 전파 · 관측각 범위 |
+| 메타모픽 | 입력·출력 변화의 관계 | 마스크↑ → 패스 수↓ · 탐색 간격 10 s vs 60 s 결과 동일 |
+| 뮤테이션 | 코드를 일부러 망가뜨림 | 생존 뮤턴트로 시험 약점 3건 발견·보강 |
 
 ## 파이프라인
 
-빌드 도구 없이 JDK + Python 만으로 돈다. 로컬과 CI 가 같은 스크립트를 쓴다.
-
 ```
-python build.py                         # compile → test → coverage gate → PMD → SpotBugs
-python build.py --min-line 90 --min-branch 80
+python build.py                   # compile → test → coverage → mutation → pmd → spotbugs → trace
+python build.py compile test      # 원하는 단계만
+python tools/gen_golden_rk4.py --check
 ```
 
 | 단계 | 도구 | 실패 조건 |
 |---|---|---|
-| compile | `javac --release 21 -Xlint:all -Werror` | 경고 1개도 실패 |
-| test | JUnit 5 (console launcher) + JaCoCo agent | 실패 1개 |
-| coverage | JaCoCo CLI → HTML·CSV, 스크립트가 게이트 판정 | 라인 < 90% 또는 분기 < 80% |
-| 정적 분석 | PMD 7 (quickstart 규칙) | 위반 1건 |
-| 정적 분석 | SpotBugs 4.9 (`-effort:max -low`) | 버그 1건 |
+| compile | `javac --release 21 -Xlint:all -Werror` | 경고 1개 |
+| test | JUnit 5 + JaCoCo agent | 실패 1개 |
+| coverage | JaCoCo CLI (HTML·XML·CSV) | 라인 < 90 % · 분기 < 85 % |
+| mutation | PIT 1.20 (STRONGER) | 검출률 < 80 % |
+| pmd · spotbugs | PMD 7 · SpotBugs 4.9 | 1건 |
+| trace | `tools/trace.py` — `@Tag("REQ-…")` ↔ 명세 ↔ JUnit 결과 | 시험 없는 요구사항 · 실패한 요구사항 · 명세에 없는 ID |
 
-GitHub Actions(`.github/workflows/ci.yml`)가 push·PR 마다 JDK 21 에서 전 단계를 돌리고 `build/reports`(JUnit XML·JaCoCo HTML·PMD·SpotBugs)를 아티팩트로 올린다.
-
-## 결과 (2026-09-15)
-
-| 항목 | 값 |
+| 실행 환경 | 설정 |
 |---|---|
-| 테스트 | **73개 통과 / 0 실패** (7개 클래스) |
-| 라인 커버리지 | **92.2%** (189/205) — 데모 `Main` 을 빼면 189/190 |
-| 분기 커버리지 | **91.0%** (91/100) — `Main` 을 빼면 91/92 |
-| PMD | 0 건 |
-| SpotBugs | 0 건 |
+| GitHub Actions | `.github/workflows/ci.yml` — ubuntu·windows × JDK 21 매트릭스, 골든 재현성 검사, 잡 요약, 리포트 아티팩트, SonarQube Cloud 잡 |
+| Jenkins | `Jenkinsfile` — 같은 단계를 선언형 파이프라인 스테이지로, JUnit 결과 기록·리포트 보관. 로컬 Jenkins LTS 빌드 #2 성공 (7 스테이지, 73 s) |
+| 로컬 | 빌드 도구 없이 JDK 21 + Python 3. 도구 jar 는 `tools/fetch.py` 가 고정 버전으로 내려받음 |
 
-시험 과정에서 찾은 것과 판단은 [`docs/test-report.md`](docs/test-report.md).
+## 구성
+
+| 모듈 | 하는 일 |
+|---|---|
+| `KeplerSolver` | 케플러 방정식 뉴턴-랩슨 풀이, 진근점 이각 변환 |
+| `OrbitalElements` | 고전 궤도 요소 + 물리적 유효성 검사, 주기·평균 운동 |
+| `TwoBodyPropagator` | 이체 문제 해석해: 궤도 요소 → PQW → ECI |
+| `Frames` | ECI↔ECEF(지구 자전각), 측지↔ECEF(구형 지구), 각도 정규화 |
+| `GroundStation` | 지상국 기준 ENU 로 고도각·방위각·거리 |
+| `PassPredictor` | 시간 창을 훑어 가시 구간을 찾고 AOS·LOS 를 이분법으로 0.5 s 까지 좁힘 |
+
+범위 밖: J2·대기항력 섭동, 세차·장동, 타원체 지구, TLE/SGP4, 대기 굴절.
