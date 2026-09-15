@@ -3,7 +3,7 @@
 - 일자: 2026-09-15
 - 대상: `src/main/java/orbitsim` (시험 계획 [`test-plan.md`](test-plan.md) §1)
 - 기준: [`requirements.md`](requirements.md) REQ 24개 · QR-01~06
-- 환경: 로컬 Windows 11 · Temurin JDK 21.0.12 / GitHub Actions ubuntu·windows × JDK 21 / Jenkins LTS 로컬 (빌드 #2 성공, 7 스테이지 73 s, [콘솔 로그](evidence/2026-09-15-jenkins-build-2-console.log))
+- 환경: 로컬 Windows 11 · Temurin JDK 21.0.12 / GitHub Actions ubuntu·windows × JDK 21 ([run 34954954787](https://github.com/Haejyn/orbit-pass-sim/actions/runs/34954954787) 두 OS 모두 성공) / Jenkins LTS 로컬 (빌드 #2 성공, 7 스테이지 73 s, [콘솔 로그](evidence/2026-09-15-jenkins-build-2-console.log) · [화면](evidence/2026-09-15-jenkins-job.png))
 - 도구: JUnit 5.13 · JaCoCo 0.8.13 · PIT 1.20.1 · PMD 7.14 · SpotBugs 4.9.3 · SonarQube Cloud
 
 ## 1. 요약
@@ -84,7 +84,7 @@
 |---|---|---|
 | PMD quickstart | 첫 실행 18건 → 0 | 중괄호 없는 `if` 11 · 한 줄 다중 선언 5 는 수정. `LogicInversion` 2 는 **규칙 제외** — `!(end > start)` 는 NaN 도 거부하려는 의도이고 권고대로 `end <= start` 로 쓰면 NaN 이 통과한다. 근거를 규칙 파일·코드 주석에 남김 |
 | SpotBugs `-effort:max -low` | 0 | — |
-| SonarQube Cloud | CI 잡으로 연동 (토큰 등록 시 활성) | 품질 게이트 결과를 PR 에 표시 |
+| SonarQube Cloud | CI 잡 구성 완료, **아직 분석 전** — `SONAR_TOKEN` 미등록으로 잡이 건너뜀 (run 34954954787) | 토큰 등록 후 첫 품질 게이트 결과를 여기에 기록 |
 
 ## 6. 파이프라인 구축 중 해결한 환경 문제
 
