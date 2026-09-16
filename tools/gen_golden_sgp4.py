@@ -34,15 +34,24 @@ GOLDEN = ROOT / "src" / "test" / "resources" / "golden"
 TLE_FILE = GOLDEN / "tle_fixtures.txt"
 OUT_STATES = GOLDEN / "sgp4_states.csv"
 OUT_TRACKS = GOLDEN / "sgp4_tracks.csv"
+OUT_LONG = GOLDEN / "sgp4_long_track.csv"
 LF = chr(10)
 
-# 이체 전파를 얼마나 오래 믿을 수 있나 — 10 분부터 하루까지
-CHECKPOINTS_S = [0.0, 600.0, 1800.0, 3600.0, 10800.0, 21600.0, 43200.0, 86400.0]
+# 이체·J2 전파를 얼마나 오래 믿을 수 있나 — 10 분부터 30 일까지
+CHECKPOINTS_S = [0.0, 600.0, 1800.0, 3600.0, 10800.0, 21600.0, 43200.0, 86400.0,
+                 259200.0, 604800.0, 2592000.0]
 
 # 패스 대조용 조밀 궤적: 지상국 패스가 자주 오는 저궤도 둘만. 60 초 간격 + Hermite 보간.
 TRACK_SATS = ("ISS (ZARYA)", "SENTINEL-2A")
 TRACK_STEP_S = 60.0
 TRACK_SPAN_S = 86400.0
+
+# 장기 창: 패스 개수가 언제부터 어긋나는지 보려면 하루로는 모자란다. 파일 크기 때문에
+# 위성 하나(ISS)만, 간격을 120 초로 넓힌다. 보간 오차가 재려는 차이에 섞이지 않는지는
+# 아래 hermite_error_km() 가 실제로 재서 찍는다 (가정하지 않는다).
+LONG_TRACK_SAT = "ISS (ZARYA)"
+LONG_TRACK_STEP_S = 120.0
+LONG_TRACK_SPAN_S = 7.0 * 86400.0
 
 POS_TOL_KM = 1e-6
 VEL_TOL_KMS = 1e-9
@@ -106,6 +115,17 @@ def gmst_rad(jd: float, fr: float) -> float:
     return math.radians((sec % 86400.0) / 240.0) % (2.0 * math.pi)
 
 
+def hermite_point(r0, v0, r1, v1, h: float, s: float) -> tuple:
+    """두 표본 사이를 3차 Hermite 로 보간한 위치. Java 쪽 GoldenSgp4Test.hermite 와 같은 식이다."""
+    s2 = s * s
+    s3 = s2 * s
+    return tuple(r0[k] * (2 * s3 - 3 * s2 + 1)
+                 + v0[k] * ((s3 - 2 * s2 + s) * h)
+                 + r1[k] * (-2 * s3 + 3 * s2)
+                 + v1[k] * ((s3 - s2) * h)
+                 for k in range(3))
+
+
 def propagate(sat, jd: float, fr: float, seconds: float):
     """에포크에서 seconds 초 뒤의 SGP4 상태. 오류 코드가 있으면 멈춘다."""
     days = seconds / 86400.0
@@ -115,10 +135,10 @@ def propagate(sat, jd: float, fr: float, seconds: float):
     return r, v
 
 
-def generate() -> tuple[list[list], list[list]]:
+def generate() -> tuple[list[list], list[list], list[list]]:
     from sgp4.api import Satrec
 
-    states, tracks = [], []
+    states, tracks, long_rows = [], [], []
     for name, l1, l2 in read_tles(TLE_FILE):
         sat = Satrec.twoline2rv(l1, l2)
         jd, fr = sat.jdsatepoch, sat.jdsatepochF
@@ -143,8 +163,25 @@ def generate() -> tuple[list[list], list[list]]:
                 r, v = propagate(sat, jd, fr, t)
                 tracks.append([name, f"{t:.1f}", *(f"{x:.9f}" for x in r), *(f"{x:.12f}" for x in v)])
 
+        if name == LONG_TRACK_SAT:
+            steps = int(round(LONG_TRACK_SPAN_S / LONG_TRACK_STEP_S)) + 1
+            worst_interp = 0.0
+            prev = None
+            for k in range(steps):
+                t = k * LONG_TRACK_STEP_S
+                r, v = propagate(sat, jd, fr, t)
+                long_rows.append([name, f"{t:.1f}", *(f"{x:.9f}" for x in r), *(f"{x:.12f}" for x in v)])
+                if prev is not None:
+                    # 표본 사이 한가운데를 보간값과 참값으로 비교한다 — 간격을 넓힌 대가를 가정하지 않고 잰다
+                    mid = hermite_point(prev[0], prev[1], r, v, LONG_TRACK_STEP_S, 0.5)
+                    truth, _ = propagate(sat, jd, fr, t - LONG_TRACK_STEP_S / 2.0)
+                    worst_interp = max(worst_interp, math.dist(mid, truth))
+                prev = (r, v)
+            print(f"{name:<14} long track {steps} rows @ {LONG_TRACK_STEP_S:.0f}s"
+                  f"  hermite midpoint error max {worst_interp * 1000.0:.1f} m")
+
         print(f"{name:<14} a={el['a_km']:10.2f} km  e={el['e']:.6f}  i={el['i_deg']:6.2f}deg  T={period_min:8.2f} min")
-    return states, tracks
+    return states, tracks, long_rows
 
 
 def compare(path: Path, rows: list[list], key_idx: list[int],
@@ -191,7 +228,8 @@ def main() -> None:
     except ImportError:
         print("sgp4 package not installed — skipping SGP4 golden generation (pip install sgp4)")
         return
-    states, tracks = generate()
+    states, tracks, long_rows = generate()
+    track_header = ["name", "t_s", "x_km", "y_km", "z_km", "vx_kms", "vy_kms", "vz_kms"]
     if "--check" in sys.argv:
         # 이름(0)·시각(8)만 문자열로 맞추고, 요소와 위치는 수치로 비교한다
         rc = compare(OUT_STATES, states, [0, 8], [
@@ -199,10 +237,13 @@ def main() -> None:
             ("angles", 3, 8, ANGLE_TOL_DEG), ("r", 9, 12, POS_TOL_KM)])
         rc |= compare(OUT_TRACKS, tracks, [0, 1], [
             ("r", 2, 5, POS_TOL_KM), ("v", 5, 8, VEL_TOL_KMS)])
+        rc |= compare(OUT_LONG, long_rows, [0, 1], [
+            ("r", 2, 5, POS_TOL_KM), ("v", 5, 8, VEL_TOL_KMS)])
         sys.exit(rc)
     write(OUT_STATES, ["name", "a_km", "e", "i_deg", "raan_deg", "argp_deg", "m0_deg", "theta0_rad",
                        "t_s", "x_km", "y_km", "z_km"], states)
-    write(OUT_TRACKS, ["name", "t_s", "x_km", "y_km", "z_km", "vx_kms", "vy_kms", "vz_kms"], tracks)
+    write(OUT_TRACKS, track_header, tracks)
+    write(OUT_LONG, track_header, long_rows)
 
 
 if __name__ == "__main__":

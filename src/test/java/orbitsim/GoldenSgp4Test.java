@@ -141,6 +141,11 @@ class GoldenSgp4Test {
             StringBuilder line = new StringBuilder(String.format("%-14s", e.getKey()));
             double previous = -1.0;
             for (State s : e.getValue()) {
+                if (s.t() > WINDOW_S) {
+                    // 하루를 넘기면 차이가 궤도 지름(2a)에 막혀 포화하고, 위상이 한 바퀴 돌면 다시 줄어든다.
+                    // 단조 증가는 "쌓이기만 한다" 를 보이려는 것이므로 하루 안에서만 따진다 (장기 창은 J2GoldenTest).
+                    continue;
+                }
                 double dr = TwoBodyPropagator.stateAt(el, s.t()).positionKm().minus(s.r()).norm();
                 line.append(String.format("  t=%-6.0f %10.3f", s.t(), dr));
                 // 섭동을 빼먹은 오차는 쌓이기만 한다 — 줄어들면 대조 설계가 깨진 것이다
