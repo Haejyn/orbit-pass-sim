@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>OrbitSim.Cli</RootNamespace>
+    <AssemblyName>OrbitSim.Cli</AssemblyName>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OrbitSim\OrbitSim.csproj" />
+  </ItemGroup>
+</Project>

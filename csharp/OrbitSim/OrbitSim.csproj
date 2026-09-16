@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>OrbitSim</RootNamespace>
+    <AssemblyName>OrbitSim</AssemblyName>
+  </PropertyGroup>
+</Project>
