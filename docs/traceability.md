@@ -31,5 +31,7 @@
 | REQ-PAS-04 | 패스는 시간순이고 겹치지 않으며, 마스크를 올리면 패스 수가 늘지 않는다 | `PassPredictorTest#passesAreOrderedAndDisjoint`<br>`PassPredictorTest#higherMaskYieldsFewerOrEqualPasses`<br>`PassPredictorTest#resultIsUnmodifiable` | 3/3 | ✅ 통과 |
 | REQ-PAS-05 | 정지궤도처럼 항상 보이는 위성은 창 전체를 한 패스로 낸다 | `PassPredictorTest#geostationaryIsAlwaysVisibleFromMidLatitude` | 1/1 | ✅ 통과 |
 | REQ-PAS-06 | 잘못된 창·간격·마스크(NaN 포함)는 거부한다 | `PassPredictorTest#boundaryArgumentsAccepted`<br>`PassPredictorTest#rejectsInvalidArguments` | 2/2 | ✅ 통과 |
+| REQ-DIF-01 | Java 구현과 C# 이식본은 같은 입력에 같은 결과를 낸다 | `DifferentialTest#javaReproducesTheGolden` | 520/520 | ✅ 통과 |
+| REQ-DIF-02 | 경계·특이값에서 두 구현의 판정이 같다 | `DifferentialTest#goldenCoversBoundariesAndRejections` | 1/1 | ✅ 통과 |
 
-**요구사항 27개 중 27개 검증됨.**
+**요구사항 29개 중 29개 검증됨.**

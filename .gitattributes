@@ -7,3 +7,6 @@
 *.xml text eol=lf
 Jenkinsfile text eol=lf
 *.bat text eol=crlf
+*.cs text eol=lf
+*.csproj text eol=lf
+*.props text eol=lf

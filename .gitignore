@@ -8,3 +8,5 @@ __pycache__/
 *.class
 .idea/
 .vscode/
+csharp/**/bin/
+csharp/**/obj/

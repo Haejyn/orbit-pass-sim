@@ -23,10 +23,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 SRC_MAIN = ROOT / "src" / "main" / "java"
 SRC_TEST = ROOT / "src" / "test" / "java"
+SRC_CLI = ROOT / "src" / "cli" / "java"
 TEST_RESOURCES = ROOT / "src" / "test" / "resources"
 OUT = ROOT / "build"
 OUT_MAIN = OUT / "classes"
 OUT_TEST = OUT / "test-classes"
+OUT_CLI = OUT / "cli-classes"
 REPORTS = OUT / "reports"
 TOOLS = ROOT / "tools"
 JAVA_RELEASE = "21"
@@ -68,6 +70,13 @@ def step_compile(tools: dict[str, Path], _args) -> None:
         fail("compile(test)")
     if TEST_RESOURCES.exists():
         shutil.copytree(TEST_RESOURCES, OUT_TEST, dirs_exist_ok=True)
+    # 차분 시험용 CLI. 제품 코드가 아니라 시험 장비이므로 따로 컴파일해
+    # 커버리지(JaCoCo)·뮤테이션(PIT)·정적분석(PMD·SpotBugs) 대상에서 뺀다 — 그것들은 OUT_MAIN·SRC_MAIN 만 본다.
+    if SRC_CLI.exists():
+        OUT_CLI.mkdir(parents=True, exist_ok=True)
+        if run(["javac", "--release", JAVA_RELEASE, "-Xlint:all", "-Werror",
+                "-cp", str(OUT_MAIN), "-d", OUT_CLI, *java_sources(SRC_CLI)]).returncode:
+            fail("compile(cli)")
 
 
 # ---------------------------------------------------------------- test (+JaCoCo agent)

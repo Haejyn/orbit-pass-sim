@@ -53,6 +53,7 @@
 | pmd · spotbugs | 0 건 | 빌드 실패 |
 | trace | 모든 REQ 에 통과 시험 ≥ 1, 명세에 없는 REQ 참조 0 | 빌드 실패 |
 | golden | `gen_golden_rk4.py` 재생성 결과가 저장소와 동일 | CI 실패 |
+| differential | Java·C# 두 구현의 결과가 허용 오차(1e-9 + 1e-12·\|기준값\|) 안, 판정 토큰 일치, 골든 불변 | CI 실패 |
 
 ## 6. 결함 관리
 
