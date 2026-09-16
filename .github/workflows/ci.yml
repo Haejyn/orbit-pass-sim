@@ -39,6 +39,10 @@ jobs:
           key: tools-${{ runner.os }}-${{ hashFiles('tools/fetch.py') }}
       - name: Golden data is reproducible (numeric tolerance)
         run: python tools/gen_golden_rk4.py --check
+      - name: Install sgp4 (기준 전파기 — 이체 모델 대조용 골든 생성)
+        run: pip install sgp4
+      - name: SGP4 golden data is reproducible (numeric tolerance)
+        run: python tools/gen_golden_sgp4.py --check
       - name: Reliability pipeline (compile · test · coverage · mutation · PMD · SpotBugs · trace)
         run: python build.py
       - name: Job summary

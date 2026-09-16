@@ -170,6 +170,12 @@ class PassPredictorTest {
         assertThrows(IllegalArgumentException.class, () -> pp.predict(0, 100, Double.NaN));
         assertThrows(IllegalArgumentException.class, () -> new PassPredictor(null, DAEJEON, 0.0, 0.0));
         assertThrows(IllegalArgumentException.class, () -> new PassPredictor(ISS_LIKE, null, 0.0, 0.0));
+        // 궤적 주입 경로도 같은 계약이다 (PIT: 궤적 널 검사를 지운 뮤턴트가 살아남았다 — 요소 널 검사는
+        // 다른 메서드로 옮겨져 이 분기를 지나는 시험이 없었다)
+        assertThrows(IllegalArgumentException.class,
+                () -> PassPredictor.forTrajectory(null, DAEJEON, 0.0, 10.0));
+        assertThrows(IllegalArgumentException.class,
+                () -> PassPredictor.forTrajectory(t -> Vector3.ZERO, null, 0.0, 10.0));
     }
 
     @Test
