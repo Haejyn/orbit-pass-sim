@@ -101,6 +101,7 @@
 | E-2 | Jenkins 첫 빌드 체크아웃 실패 `.git/hooks/: Filename too long` | Windows 경로 260자 제한 — `JENKINS_HOME\workspace\job@script\<64자 해시>\.git\hooks` | JENKINS_HOME 을 짧은 경로로 이동 |
 | E-3 | 골든 데이터 재현성 검사가 OS 따라 흔들릴 위험 | `csv` 모듈 기본 CRLF, OS 별 libm sin·cos 마지막 자리 차이 | 줄바꿈 LF 고정(`.gitattributes`), 문자열 비교 대신 수치 허용 오차(1e-6 km) 비교 |
 | E-4 | GitHub Actions **windows-latest 에서만** 추적 단계 실패 `UnicodeEncodeError: 'charmap' codec can't encode '→'` (ubuntu·로컬·Jenkins 는 통과) | Windows 러너 콘솔 기본 인코딩 cp1252 — 보고 문자열의 `→`·`✗` | 스크립트가 stdout 을 UTF-8 로 재설정. OS 매트릭스를 둔 이유가 실제로 드러난 사례 |
+| E-5 | GitHub Actions **ubuntu-latest 에서만** SGP4 골든 재현성 검사 실패 `key columns differ` (windows·로컬은 통과) | SGP4 상태에서 **계산해 얻은 궤도 요소를 문자열로 비교**했다. XMM 의 평균근점이각이 OS 간 마지막 자리에서 1e-12 deg 달랐다 — E-3 에서 배운 것을 계산 값에 다시 저지른 셈이다 | 계산 열은 전부 수치 허용 오차로 대조(각 1e-9 deg · 이심률 1e-12 · 위치 1e-6 km · 속도 1e-9 km/s), 이름·시각처럼 우리가 적어 넣은 값만 문자열로 맞춘다 |
 
 ## 7. 이체 모델의 유효 범위 — SGP4 대조 (2026-09-16)
 
