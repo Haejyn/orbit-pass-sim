@@ -46,6 +46,8 @@ TRACK_SPAN_S = 86400.0
 
 POS_TOL_KM = 1e-6
 VEL_TOL_KMS = 1e-9
+ECC_TOL = 1e-12
+ANGLE_TOL_DEG = 1e-9      # 관측된 OS 간 차이는 1e-12 deg — 1,000 배 여유
 
 
 def read_tles(path: Path) -> list[tuple[str, str, str]]:
@@ -145,7 +147,14 @@ def generate() -> tuple[list[list], list[list]]:
     return states, tracks
 
 
-def compare(path: Path, rows: list[list], key_cols: int, tol: list[tuple[int, int, float]]) -> int:
+def compare(path: Path, rows: list[list], key_idx: list[int],
+            tol: list[tuple[str, int, int, float]]) -> int:
+    """저장본과 다시 계산한 값을 대조한다.
+
+    **계산으로 얻은 열은 문자열로 비교하지 않는다.** OS 마다 libm 의 마지막 자리가 달라
+    같은 입력에서도 끝자리가 흔들린다 (실제로 XMM 의 평균근점이각이 Windows 와 Linux 에서
+    1e-12 deg 차이가 났다). 이름·시각처럼 우리가 적어 넣은 값만 문자열로 맞춘다.
+    """
     with open(path, encoding="utf-8", newline="") as f:
         stored = list(csv.reader(f))[1:]
     if len(stored) != len(rows):
@@ -153,13 +162,14 @@ def compare(path: Path, rows: list[list], key_cols: int, tol: list[tuple[int, in
         return 1
     worst = [0.0] * len(tol)
     for old, new in zip(stored, rows):
-        if old[:key_cols] != [str(x) for x in new[:key_cols]]:
-            print(f"{path.name}: key columns differ: {old[:key_cols]} vs {new[:key_cols]}")
-            return 1
-        for idx, (lo, hi, _) in enumerate(tol):
+        for k in key_idx:
+            if old[k] != str(new[k]):
+                print(f"{path.name}: key column {k} differs: {old[k]} vs {new[k]}")
+                return 1
+        for idx, (_, lo, hi, _t) in enumerate(tol):
             worst[idx] = max(worst[idx], max(abs(float(old[k]) - float(new[k])) for k in range(lo, hi)))
-    ok = all(w <= t[2] for w, t in zip(worst, tol))
-    detail = "  ".join(f"max|d{t[0]}..{t[1]}|={w:.3e}" for w, t in zip(worst, tol))
+    ok = all(w <= t[3] for w, t in zip(worst, tol))
+    detail = "  ".join(f"{t[0]} max|d|={w:.3e} (tol {t[3]:.0e})" for w, t in zip(worst, tol))
     print(f"{path.name}: {detail} -> {'OK' if ok else 'MISMATCH'}")
     return 0 if ok else 1
 
@@ -183,8 +193,12 @@ def main() -> None:
         return
     states, tracks = generate()
     if "--check" in sys.argv:
-        rc = compare(OUT_STATES, states, 9, [(9, 12, POS_TOL_KM)])
-        rc |= compare(OUT_TRACKS, tracks, 2, [(2, 5, POS_TOL_KM), (5, 8, VEL_TOL_KMS)])
+        # 이름(0)·시각(8)만 문자열로 맞추고, 요소와 위치는 수치로 비교한다
+        rc = compare(OUT_STATES, states, [0, 8], [
+            ("a", 1, 2, POS_TOL_KM), ("e", 2, 3, ECC_TOL),
+            ("angles", 3, 8, ANGLE_TOL_DEG), ("r", 9, 12, POS_TOL_KM)])
+        rc |= compare(OUT_TRACKS, tracks, [0, 1], [
+            ("r", 2, 5, POS_TOL_KM), ("v", 5, 8, VEL_TOL_KMS)])
         sys.exit(rc)
     write(OUT_STATES, ["name", "a_km", "e", "i_deg", "raan_deg", "argp_deg", "m0_deg", "theta0_rad",
                        "t_s", "x_km", "y_km", "z_km"], states)
