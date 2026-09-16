@@ -15,9 +15,18 @@ public final class PassPredictor {
         public double durationSeconds() { return losSeconds - aosSeconds; }
     }
 
+    /**
+     * 에포크 기준 t 초의 ECI 위치를 주는 궤적. 전파 방법이 달라도 **같은 탐색·이분법 코드**로
+     * 패스를 구할 수 있어야, 두 전파기의 패스 차이가 전파 차이만으로 설명된다.
+     */
+    @FunctionalInterface
+    public interface Trajectory {
+        Vector3 positionEciAt(double secondsSinceEpoch);
+    }
+
     private static final double BISECTION_TOLERANCE_S = 0.5;
 
-    private final OrbitalElements elements;
+    private final Trajectory trajectory;
     private final GroundStation station;
     private final double thetaAtEpoch;
     private final double minElevationRad;
@@ -26,22 +35,42 @@ public final class PassPredictor {
      * @param minElevationDeg 이 고도각 이상일 때만 "보인다" 로 친다 (보통 0~10°)
      */
     public PassPredictor(OrbitalElements elements, GroundStation station, double thetaAtEpoch, double minElevationDeg) {
-        if (elements == null || station == null) {
+        this(twoBodyTrajectory(elements), station, thetaAtEpoch, minElevationDeg);
+    }
+
+    /**
+     * 궤적을 직접 주입한다 — 외부 기준(예: SGP4 골든 궤적)을 같은 탐색 코드로 돌려 패스를 대조할 때 쓴다.
+     * 생성자 오버로드로 두면 {@code new PassPredictor(null, …)} 가 모호해지므로 정적 팩토리로 둔다.
+     */
+    public static PassPredictor forTrajectory(Trajectory trajectory, GroundStation station,
+            double thetaAtEpoch, double minElevationDeg) {
+        return new PassPredictor(trajectory, station, thetaAtEpoch, minElevationDeg);
+    }
+
+    private PassPredictor(Trajectory trajectory, GroundStation station, double thetaAtEpoch, double minElevationDeg) {
+        if (trajectory == null || station == null) {
             throw new IllegalArgumentException("elements and station required");
         }
         if (!(minElevationDeg >= -90.0 && minElevationDeg < 90.0)) {
             throw new IllegalArgumentException("minElevationDeg out of range: " + minElevationDeg);
         }
-        this.elements = elements;
+        this.trajectory = trajectory;
         this.station = station;
         this.thetaAtEpoch = thetaAtEpoch;
         this.minElevationRad = Math.toRadians(minElevationDeg);
     }
 
+    private static Trajectory twoBodyTrajectory(OrbitalElements elements) {
+        if (elements == null) {
+            throw new IllegalArgumentException("elements and station required");
+        }
+        return t -> TwoBodyPropagator.stateAt(elements, t).positionKm();
+    }
+
     /** t 초 시점의 고도각 [rad]. */
     public double elevationAt(double t) {
-        StateVector sv = TwoBodyPropagator.stateAt(elements, t);
-        Vector3 ecef = Frames.eciToEcef(sv.positionKm(), Frames.earthRotationAngle(thetaAtEpoch, t));
+        Vector3 eci = trajectory.positionEciAt(t);
+        Vector3 ecef = Frames.eciToEcef(eci, Frames.earthRotationAngle(thetaAtEpoch, t));
         return station.lookAngles(ecef).elevation();
     }
 
