@@ -17,7 +17,7 @@
 | REQ-PRP-05 | 장기 전파(최대 1000 년)에서도 예외 없이 결과를 낸다 | `RobustnessTest#longTermPropagationIsStable` | 3/3 | ✅ 통과 |
 | REQ-PRP-06 | 비유한 시간은 거부한다 | `TwoBodyPropagatorTest#rejectsNonFiniteTime` | 1/1 | ✅ 통과 |
 | REQ-PRP-07 | 이체 모델의 유효 범위를 SGP4 기준과 대조해 고정한다 | `GoldenSgp4Test#twoBodyStartsFromTheSameStateAsSgp4`<br>`GoldenSgp4Test#positionDivergenceGrowsAndStaysWithinMeasuredBounds`<br>`GoldenSgp4Test#passTimesDifferWithinMeasuredBounds` | 3/3 | ✅ 통과 |
-| REQ-PRP-08 | J2 세속 항 전파기를 두고, 이체 대비 효과를 궤도별로 고정한다 | `J2GoldenTest#j2SecularNarrowsTheGapToSgp4`<br>`J2GoldenTest#j2MatchesTwoBodyAtEpoch`<br>`J2GoldenTest#raanDriftMatchesSunSynchronousDesign`<br>`J2GoldenTest#driftRatesMatchKnownInclinationLandmarks`<br>`J2GoldenTest#rejectsBadInputAndDriftsInTheRightDirection` | 5/5 | ✅ 통과 |
+| REQ-PRP-08 | J2 세속 항 전파기를 두고, 이체 대비 효과를 궤도별로 고정한다 | `J2GoldenTest#j2SecularNarrowsTheGapToSgp4`<br>`J2GoldenTest#j2MatchesTwoBodyAtEpoch`<br>`J2GoldenTest#raanDriftMatchesSunSynchronousDesign`<br>`J2GoldenTest#driftRatesMatchKnownInclinationLandmarks`<br>`J2GoldenTest#rejectsBadInputAndDriftsInTheRightDirection`<br>`J2GoldenTest#secularRatesFollowTheClosedFormOnEccentricOrbits` | 6/6 | ✅ 통과 |
 | REQ-PRP-09 | 하루를 넘는 창에서 패스 개수가 어긋나기 시작하는 지점을 고정한다 | `J2GoldenTest#longWindowPassCountsDivergeAfterMeasuredDay` | 1/1 | ✅ 통과 |
 | REQ-FRM-01 | ECI↔ECEF, 측지↔ECEF 변환은 서로 역변환이다 | `FramesTest#eciEcefRoundTrip`<br>`FramesTest#knownRotations`<br>`FramesTest#geodeticRoundTrip`<br>`FramesTest#equatorPrimeMeridian`<br>`FramesTest#centerHasNoGeodetic` | 5/5 | ✅ 통과 |
 | REQ-FRM-02 | 지구 자전각은 항성일마다 한 바퀴 돈다 | `FramesTest#rotationAngleAdvancesOneTurnPerSiderealDay` | 1/1 | ✅ 통과 |
