@@ -5,14 +5,14 @@
 - 기준: [`requirements.md`](requirements.md) REQ 29개 · QR-01~06
 - 환경: 로컬 Windows 11 · Temurin JDK 21.0.12 / GitHub Actions ubuntu·windows × JDK 21 ([run 34954954787](https://github.com/Haejyn/orbit-pass-sim/actions/runs/34954954787) 두 OS 모두 성공) / Jenkins LTS 로컬 (빌드 #2 성공, 7 스테이지 73 s, [콘솔 로그](evidence/2026-09-15-jenkins-build-2-console.log) · [화면](evidence/2026-09-15-jenkins-job.png))
 - 도구: JUnit 5.13 · JaCoCo 0.8.13 · PIT 1.20.1 · PMD 7.14 · SpotBugs 4.9.3 · Python `sgp4` (기준 궤적 생성)
-  · SonarQube Cloud 는 **잡만 구성돼 있고 아직 분석하지 않았다** (`SONAR_TOKEN` 미등록 — 잡은 초록이지만 로그는 skipped, §5)
+  · SonarQube Cloud 는 2026-09-21 에 **첫 분석을 마쳤다** — 품질 게이트 통과 ([대시보드](https://sonarcloud.io/dashboard?id=Haejyn_orbit-pass-sim), [CI run](https://github.com/Haejyn/orbit-pass-sim/actions/runs/35589523639), §5)
 
 ## 1. 요약
 
 | 항목 | 기준 | 결과 | 판정 |
 |---|---|---|---|
 | 동적 시험 | 실패 0 | **657 / 657 통과** (12 클래스 — 기존 136 + 차분 521, §9) | 합격 |
-| 라인 커버리지 | ≥ 90 % | **93.7 %** (224/239, 데모 `Main` 제외 시 224/225) | 합격 |
+| 라인 커버리지 | ≥ 90 % | **93.7 %** (224/239 — 덮이지 않은 코드는 데모 `Main` 의 15 줄뿐이고 `Main` 을 빼면 224/224) | 합격 |
 | 분기 커버리지 | ≥ 85 % | **92.6 %** (100/108) | 합격 |
 | 뮤테이션 검출률 | ≥ 80 % | **94.0 %** (280/298) — 생존 18개 판정: §4 (차분 시험이 2개, J2 이심률 시험이 4개를 더 잡아 24 → 22 → 18) | 합격 |
 | 요구사항 추적 | 전 REQ 검증 | **29 / 29** ([`traceability.md`](traceability.md)) | 합격 |
@@ -112,7 +112,24 @@ PIT 를 돌리기 전에 뮤턴트를 직접 심어 확인했다 — L43 두 종
 |---|---|---|
 | PMD quickstart | 첫 실행 18건 → 0 | 중괄호 없는 `if` 11 · 한 줄 다중 선언 5 는 수정. `LogicInversion` 2 는 **규칙 제외** — `!(end > start)` 는 NaN 도 거부하려는 의도이고 권고대로 `end <= start` 로 쓰면 NaN 이 통과한다. 근거를 규칙 파일·코드 주석에 남김 |
 | SpotBugs `-effort:max -low` | 0 | — |
-| SonarQube Cloud | CI 잡 구성 완료, **아직 분석 전** — `SONAR_TOKEN` 미등록으로 잡이 건너뜀 (run 34954954787) | 토큰 등록 후 첫 품질 게이트 결과를 여기에 기록 |
+| SonarQube Cloud | **품질 게이트 통과** (2026-09-21, [run 35589523639](https://github.com/Haejyn/orbit-pass-sim/actions/runs/35589523639)) — 버그 0 · 취약점 0 · 보안 핫스팟 0 · 중복 0.0 % · 등급 전부 A · 코드 스멜 **6** | 아래 |
+
+**SonarQube 첫 분석 (2026-09-21).** 토큰을 등록하기 전까지 이 잡은 **초록이었지만 아무것도 하지 않았다**(`SONAR_TOKEN` 이 없으면 스텝을 건너뛰고 `::notice::` 만 찍는다).
+그래서 성공 표시만으로는 분석이 돌았다는 증거가 못 되고, 로그에서 `sonar-scanner` 실행 · JavaSensor · JaCoCo 리포트 가져오기 · `QUALITY GATE STATUS: PASSED` 를 확인했다.
+
+- **커버리지 100 % 는 JaCoCo 93.7 % 와 같은 값이다.** 덮인 수는 라인 224 · 분기 100 으로 **똑같고** 분모만 다르다 — `ci.yml` 이 `-Dsonar.coverage.exclusions=**/Main.java` 로 데모 CLI 를 빼기 때문이다.
+  JaCoCo 클래스별로 보면 덮이지 않은 코드는 `Main` 뿐이다(라인 15 · 분기 8). 이 제외는 설정에 그대로 적혀 있고, 숫자를 좋게 보이려고 넣은 것이 아니라 처음부터 있었다.
+  (예전 보고서는 "`Main` 제외 시 224/225" 라고 적었는데 틀린 서술이었다 — 정확히는 224/224 다.)
+- **코드 스멜 6 개의 판정**
+
+| 개수 | 규칙 · 위치 | 판정 |
+|---|---|---|
+| 3 | `S106` `Main.java` 19·22·24 — `System.out` 을 로거로 | 데모 CLI 의 의도된 출력 |
+| 2 | `S1940` `PassPredictor.java` 84·87 — 부정 연산자 대신 `<=` | **PMD `LogicInversion` 과 같은 자리이고 같은 판정이다.** `!(x > y)` 는 NaN 도 거부하려는 의도라 권고대로 `<=` 로 쓰면 NaN 이 통과한다 |
+| 1 | `S3776` `PassPredictor.java` 82 — 인지 복잡도 17 (허용 15) | **실제 지적.** `predict` 의 가시 구간 추적 루프가 복잡하다. 리팩터링 후보이나 이번에는 손대지 않았다 — 뮤테이션 검사 대상이라 고치면 새 생존 위험을 얻는다 |
+
+- 정적 분석 세 도구는 서로 다른 것을 잡았다: PMD 는 규칙 위반 18 → 0, SpotBugs 0, SonarQube 는 **복잡도** 를 잡았다.
+- 분석 경고 세 건은 남아 있다 — `sonar.java.test.libraries` 미설정으로 분석이 덜 정밀할 수 있다(JUnit jar 를 넘기지 않았다), 확인하지 못한 import·타입, 미리보기 기능 사용 감지. 이번에는 게이트에 영향이 없어 고치지 않았다.
 
 ## 6. 파이프라인 구축 중 해결한 환경 문제
 
