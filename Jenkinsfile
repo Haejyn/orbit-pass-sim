@@ -31,6 +31,9 @@ pipeline {
         stage('Requirements traceability') {
             steps { script { run('python build.py trace') } }
         }
+        stage('Performance (trajectory calls per sample)') {
+            steps { script { run('python build.py bench') } }
+        }
     }
 
     post {

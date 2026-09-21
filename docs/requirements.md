@@ -83,6 +83,7 @@
 | QR-04 | 정적 분석 | PMD 위반 0, SpotBugs 0 |
 | QR-05 | 추적성 | 모든 REQ 에 통과한 시험 ≥ 1 |
 | QR-06 | 이식성 | Linux·Windows × JDK 21 에서 동일 결과 |
+| QR-07 | 성능 회귀 | `PassPredictor.predict` 의 표본당 궤적 평가 횟수 ≤ 1.10 (`python build.py bench`). 시간·할당은 보고만 한다 — 러너 성능과 JIT 에 흔들려 결정적이지 않다 |
 
 ## 3. 범위 밖
 
