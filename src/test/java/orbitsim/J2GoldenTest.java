@@ -192,6 +192,42 @@ class J2GoldenTest {
         assertEquals(expected, rate, Math.abs(expected) * 1e-9, "nodal rate must follow a(1-e^2)");
     }
 
+    // ── 2-e. driftedElements 를 이심률이 큰 궤도에서 식 그대로 따로 계산해 대조한다 ──────
+    @Test
+    @Tag("REQ-PRP-08")
+    @DisplayName("이심률이 큰 궤도에서 세 세속 변화율이 식을 그대로 따른다")
+    void secularRatesFollowTheClosedFormOnEccentricOrbits() {
+        // PIT 생존 J2Propagator L43(p = a(1−e²)) · L51(평균 근점 이각 변화율)을 겨냥한다.
+        // 왜 지금까지 살아남았나 — 위의 e = 0.7 단언은 raanRateRadPerSecond 만 부르는데, 그 메서드는 p 를 62 줄에서
+        // **따로 다시 계산**하므로 driftedElements 의 43 줄을 한 번도 지나지 않는다. 나머지 시험은 e = 0.001 궤도라
+        // e² = 1e-6 이어서 연산자를 바꿔도 결과가 2 ppm 만 달라져 어떤 단언에도 걸리지 않았다.
+        // 여기서는 e = 0.7·0.4 (e² = 0.49·0.16) 와 임계값이 아닌 경사각(20°·50°)을 써서, 연산자 하나만 바뀌어도
+        // 결과가 수십 % 달라지고 세 항이 모두 0 이 아닌 크기로 드러나게 한다.
+        double t = 3.0 * 3600.0;
+        double[][] orbits = {{26000.0, 0.7, 20.0}, {15000.0, 0.4, 50.0}};      // a [km], e, i [deg]
+        for (double[] orbit : orbits) {
+            OrbitalElements el = new OrbitalElements(orbit[0], orbit[1], Math.toRadians(orbit[2]), 0.3, 0.7, 0.1);
+
+            // 기대값 — 제품 코드와 다른 꼴로 다시 쓴다: sin²i 는 1 − cos²i 로, p 는 시험 안에서 따로 곱한다.
+            double cosI = Math.cos(el.inclination());
+            double sin2 = 1.0 - cosI * cosI;
+            double p = el.semiMajorAxisKm() * (1.0 - el.eccentricity() * el.eccentricity());
+            double rOverP = Constants.R_EARTH / p;
+            double factor = 1.5 * Constants.J2_EARTH * rOverP * rOverP * el.meanMotion();
+            double expectedRaanRate = -factor * cosI;
+            double expectedArgpRate = factor * (2.0 - 2.5 * sin2);
+            double expectedMeanRate = el.meanMotion()
+                    + factor * Math.sqrt(1.0 - el.eccentricity() * el.eccentricity()) * (1.0 - 1.5 * sin2);
+
+            OrbitalElements after = J2Propagator.driftedElements(el, t);
+            String label = " (a=" + orbit[0] + " e=" + orbit[1] + " i=" + orbit[2] + ")";
+            assertEquals(el.raan() + expectedRaanRate * t, after.raan(), 1e-12, "node drift" + label);
+            assertEquals(el.argPerigee() + expectedArgpRate * t, after.argPerigee(), 1e-12, "perigee drift" + label);
+            assertEquals(el.meanAnomalyAtEpoch() + expectedMeanRate * t, after.meanAnomalyAtEpoch(), 1e-12,
+                    "mean anomaly drift" + label);
+        }
+    }
+
     // ── 3. 창을 이레로 늘리면 패스 개수가 언제부터 어긋나나 ─────────────────
     @Test
     @Tag("REQ-PRP-09")
