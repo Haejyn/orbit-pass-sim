@@ -43,7 +43,7 @@ jobs:
         run: pip install sgp4
       - name: SGP4 golden data is reproducible (numeric tolerance)
         run: python tools/gen_golden_sgp4.py --check
-      - name: Reliability pipeline (compile · test · coverage · mutation · PMD · SpotBugs · trace)
+      - name: Reliability pipeline (compile · test · coverage · mutation · PMD · SpotBugs · trace · bench)
         run: python build.py
       - name: Job summary
         if: always()
@@ -54,6 +54,7 @@ jobs:
             for f in test-summary coverage-summary mutation-summary; do
               [ -f "build/reports/$f.txt" ] && { echo '```'; head -3 "build/reports/$f.txt"; echo '```'; }
             done
+            [ -f build/reports/bench.txt ] && { echo '```'; cat build/reports/bench.txt; echo '```'; }
             [ -f docs/traceability.md ] && tail -2 docs/traceability.md
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Upload reports

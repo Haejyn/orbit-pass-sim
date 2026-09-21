@@ -33,7 +33,7 @@ REPORTS = OUT / "reports"
 TOOLS = ROOT / "tools"
 JAVA_RELEASE = "21"
 SEP = ";" if os.name == "nt" else ":"
-ALL_STEPS = ["compile", "test", "coverage", "mutation", "pmd", "spotbugs", "trace"]
+ALL_STEPS = ["compile", "test", "coverage", "mutation", "pmd", "spotbugs", "trace", "bench"]
 
 
 def run(cmd: list, **kw) -> subprocess.CompletedProcess:
@@ -225,9 +225,26 @@ def step_trace(_tools, _args) -> None:
         fail("requirements traceability")
 
 
+# ---------------------------------------------------------------- bench
+def step_bench(_tools: dict[str, Path], args) -> None:
+    """PassPredictor.predict 의 창 길이별 비용을 재고, **표본당 궤적 평가 횟수**로만 게이트를 건다.
+
+    시간은 러너 성능에 흔들리고 할당은 JIT 가 없애 주는 정도(JDK 버전마다 다르다 — 같은 코드가 창 길이에 따라 41~107 B/표본)에
+    흔들린다. 궤적 평가 횟수는 결정적이라 둘 다 영향을 받지 않는다. 시간·할당은 보고서에 **보고만** 하고 문턱을 두지 않는다.
+    """
+    cp = SEP.join([str(OUT_MAIN), str(OUT_CLI)])
+    r = run(["java", "-cp", cp, "orbitsim.cli.BenchCli", "--check", str(args.max_evals_per_sample)],
+            capture_output=True, text=True, encoding="utf-8")
+    print(r.stdout)
+    REPORTS.mkdir(parents=True, exist_ok=True)
+    (REPORTS / "bench.txt").write_text(r.stdout, encoding="utf-8")
+    if r.returncode:
+        fail(f"bench: {r.stderr.strip() or 'exit ' + str(r.returncode)}")
+
+
 STEPS = {
     "compile": step_compile, "test": step_test, "coverage": step_coverage, "mutation": step_mutation,
-    "pmd": step_pmd, "spotbugs": step_spotbugs, "trace": step_trace,
+    "pmd": step_pmd, "spotbugs": step_spotbugs, "trace": step_trace, "bench": step_bench,
 }
 
 
@@ -238,6 +255,7 @@ def main() -> None:
     ap.add_argument("--min-line", type=float, default=90.0)
     ap.add_argument("--min-branch", type=float, default=85.0)
     ap.add_argument("--min-mutation", type=float, default=80.0)
+    ap.add_argument("--max-evals-per-sample", type=float, default=1.10)
     args = ap.parse_args()
     unknown = [s for s in args.steps + args.skip if s not in ALL_STEPS]
     if unknown:
