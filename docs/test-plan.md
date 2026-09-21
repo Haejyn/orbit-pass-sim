@@ -6,9 +6,9 @@
 
 | 항목 | 내용 |
 |---|---|
-| SW | `orbitsim` 패키지 — KeplerSolver · OrbitalElements · TwoBodyPropagator · Frames · GroundStation · PassPredictor · Vector3 · StateVector |
+| SW | `orbitsim` 패키지 — KeplerSolver · OrbitalElements · TwoBodyPropagator · J2Propagator · Frames · GroundStation · PassPredictor · Vector3 · StateVector |
 | 제외 | `Main` (데모 CLI, 로직 없음) |
-| 기준 문서 | `docs/requirements.md` 기능 요구사항 REQ-* 24개 · 품질 요구사항 QR-01~06 |
+| 기준 문서 | `docs/requirements.md` 기능 요구사항 REQ-* 29개 · 품질 요구사항 QR-01~06 |
 
 ## 2. 시험 목표
 
@@ -30,6 +30,8 @@
 | 성질 기반 무작위 시험 | 고정 시드 난수로 넓은 입력 공간에서 불변식 검사 (최대 100,000 건) | KEP-01 · FRM-03 · GST-02 · PRP-05 |
 | 시나리오 시험 | 알려진 운용 사실 (ISS 급 궤도 하루 패스 수, 정지궤도 상시 가시) | PAS-01 · PAS-05 |
 | 메타모픽 시험 | 입력 변화와 출력 변화의 관계 (마스크↑ → 패스 수↓, 탐색 간격 변화 → 결과 불변) | PAS-03 · PAS-04 |
+| 외부 표준 모델 대조 | SGP4 (공개 TLE + Python `sgp4`) — 제품 코드에는 없고 기준으로만 | PRP-07 · PRP-08 · PRP-09 |
+| 차분 시험 | 같은 명세로 만든 다른 언어 구현 (Java ↔ C#, 520 사례) | DIF-01 · DIF-02 |
 | 뮤테이션 시험 | PIT STRONGER 연산자로 코드를 일부러 망가뜨려 시험이 잡는지 | 전체 |
 
 ## 4. 시험 환경
@@ -52,7 +54,7 @@
 | mutation | 검출률 ≥ 80 % | 빌드 실패 |
 | pmd · spotbugs | 0 건 | 빌드 실패 |
 | trace | 모든 REQ 에 통과 시험 ≥ 1, 명세에 없는 REQ 참조 0 | 빌드 실패 |
-| golden | `gen_golden_rk4.py` 재생성 결과가 저장소와 동일 | CI 실패 |
+| golden | `gen_golden_rk4.py`·`gen_golden_sgp4.py` 재생성 결과가 저장소와 동일 (SGP4 는 이름·시각만 문자열, 나머지는 수치 허용 오차) | CI 실패 |
 | differential | Java·C# 두 구현의 결과가 허용 오차(1e-9 + 1e-12·\|기준값\|) 안, 판정 토큰 일치, 골든 불변 | CI 실패 |
 
 ## 6. 결함 관리
@@ -65,7 +67,7 @@
 
 | 위험 | 대응 |
 |---|---|
-| 이체 모델이라 실제 궤도와 오차 | 범위를 명세에 명시. 다음 단계: 공개 TLE 로 SGP4 대조 |
+| 이체 모델이라 실제 궤도와 오차 | 범위를 명세에 명시하고, 공개 TLE 의 SGP4 와 대조해 유효 범위를 수치로 고정했다 (보고서 §7) |
 | 독립 구현도 같은 개념 오류를 공유할 수 있음 | 방법이 다른 기준을 둘 이상 사용 (해석해 · 수치 적분 · 물리 보존량) |
 | 무작위 시험의 재현성 | 고정 시드, 실패 메시지에 입력값 출력 |
 | 도구·JDK 버전 차이 | 버전 고정, OS 2종 매트릭스 |

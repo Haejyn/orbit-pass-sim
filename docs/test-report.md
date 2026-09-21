@@ -2,7 +2,7 @@
 
 - 일자: 2026-09-15 (기준선) · 2026-09-16 (SGP4 대조 — §7)
 - 대상: `src/main/java/orbitsim` (시험 계획 [`test-plan.md`](test-plan.md) §1)
-- 기준: [`requirements.md`](requirements.md) REQ 25개 · QR-01~06
+- 기준: [`requirements.md`](requirements.md) REQ 29개 · QR-01~06
 - 환경: 로컬 Windows 11 · Temurin JDK 21.0.12 / GitHub Actions ubuntu·windows × JDK 21 ([run 34954954787](https://github.com/Haejyn/orbit-pass-sim/actions/runs/34954954787) 두 OS 모두 성공) / Jenkins LTS 로컬 (빌드 #2 성공, 7 스테이지 73 s, [콘솔 로그](evidence/2026-09-15-jenkins-build-2-console.log) · [화면](evidence/2026-09-15-jenkins-job.png))
 - 도구: JUnit 5.13 · JaCoCo 0.8.13 · PIT 1.20.1 · PMD 7.14 · SpotBugs 4.9.3 · Python `sgp4` (기준 궤적 생성)
   · SonarQube Cloud 는 **잡만 구성돼 있고 아직 분석하지 않았다** (`SONAR_TOKEN` 미등록 — 잡은 초록이지만 로그는 skipped, §5)
