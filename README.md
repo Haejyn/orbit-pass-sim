@@ -45,6 +45,8 @@ passes in 24h: 5
 | 물리 보존량 | 이체 운동의 불변량 | 비에너지 −μ/2a (상대오차 1e-10) · 비각운동량 벡터 |
 | 독립 구현 | 다른 알고리즘 | 케플러 해 = Python 이분법 · 전파 결과 = **Python RK4 수치 적분** (궤도 5종, 0.01 km) |
 | 독립 기하 | 따로 구성한 기저 | 중위도 지상국의 동·북·천정을 외적으로 만들어 방위각·고도각 대조 |
+| 외부 표준 모델 | SGP4 (공개 TLE + Python `sgp4`) — **제품 코드에는 없고 시험의 기준으로만** 쓴다 | 이체 모델의 유효 범위(위치·패스 차이) · J2 세속 항의 궤도별 효과 · 이레 창 패스 개수 |
+| 차분 시험 | 같은 명세로 만든 다른 언어 구현 | Java ↔ C# 520 사례 — 최대 차이 3.64e-11 km |
 | 경계값 | 명세 범위 끝·바로 밖·NaN·±∞·−0.0 | e=1 거부 · i=π 허용 · −Double.MIN_VALUE 정규화 |
 | 성질 기반 무작위 | 고정 시드 불변식 (최대 100,000 건) | \|M\| 10³~10¹⁵ 케플러 · 1,000년 전파 · 관측각 범위 |
 | 메타모픽 | 입력·출력 변화의 관계 | 마스크↑ → 패스 수↓ · 탐색 간격 10 s vs 60 s 결과 동일 |
@@ -56,6 +58,8 @@ passes in 24h: 5
 python build.py                   # compile → test → coverage → mutation → pmd → spotbugs → trace
 python build.py compile test      # 원하는 단계만
 python tools/gen_golden_rk4.py --check
+python tools/gen_golden_sgp4.py --check   # 골든 재현성 (sgp4 패키지가 없으면 건너뜀)
+python tools/differential.py --check      # Java ↔ C# 차분 시험
 ```
 
 | 단계 | 도구 | 실패 조건 |
@@ -80,8 +84,9 @@ python tools/gen_golden_rk4.py --check
 | `KeplerSolver` | 케플러 방정식 뉴턴-랩슨 풀이, 진근점 이각 변환 |
 | `OrbitalElements` | 고전 궤도 요소 + 물리적 유효성 검사, 주기·평균 운동 |
 | `TwoBodyPropagator` | 이체 문제 해석해: 궤도 요소 → PQW → ECI |
+| `J2Propagator` | 이체 궤적에 **J2 세속 항**(승교점 적경·근지점 인수·평균 근점 이각의 변화율)을 더해 궤도 요소를 밀어 준다 (REQ-PRP-08) |
 | `Frames` | ECI↔ECEF(지구 자전각), 측지↔ECEF(구형 지구), 각도 정규화 |
 | `GroundStation` | 지상국 기준 ENU 로 고도각·방위각·거리 |
-| `PassPredictor` | 시간 창을 훑어 가시 구간을 찾고 AOS·LOS 를 이분법으로 0.5 s 까지 좁힘 |
+| `PassPredictor` | 시간 창을 훑어 가시 구간을 찾고 AOS·LOS 를 이분법으로 0.5 s 까지 좁힘. 궤적을 주입할 수 있어(`forTrajectory`) J2 궤적이나 외부 골든 궤적도 같은 탐색 코드로 돌린다 |
 
-범위 밖: J2·대기항력 섭동, 세차·장동, 타원체 지구, TLE/SGP4, 대기 굴절.
+범위 밖: J2 단주기 항과 평균 요소 변환(세속 항만 넣었다), 대기항력 섭동, 세차·장동, 타원체 지구, 대기 굴절, 제품 코드의 TLE/SGP4 (시험의 기준으로는 쓴다).
