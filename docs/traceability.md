@@ -25,7 +25,7 @@
 | REQ-GST-01 | 위성의 고도각·방위각·거리를 구한다 | `GroundStationTest#zenithSatellite`<br>`GroundStationTest#azimuthAtEquator`<br>`GroundStationTest#localTangentBasisAtMidLatitude` | 3/3 | ✅ 통과 |
 | REQ-GST-02 | 고도각은 [−90°, 90°], 방위각은 [0°, 360°) 안이다 | `GroundStationTest#antipodalSatelliteBelowHorizon`<br>`GroundStationTest#elevationWithinBounds`<br>`RobustnessTest#lookAnglesStayInRange`<br>`RobustnessTest#azimuthJustWestOfNorthIsBelow360` | 4/4 | ✅ 통과 |
 | REQ-GST-03 | 잘못된 지상국 좌표·이름은 거부한다 | `GroundStationTest#coincidentSatelliteRejected`<br>`GroundStationTest#validation` | 2/2 | ✅ 통과 |
-| REQ-PAS-01 | 시간 창에서 가시 구간(AOS·LOS·최대 고도각)을 찾는다 | `PassPredictorTest#issPassesPerDayAreRealistic`<br>`PassPredictorTest#equatorialLeoRarelyVisibleFromDaejeon`<br>`PassPredictorTest#maxElevationMatchesFineSampling`<br>`PassPredictorTest#windowBoundariesTruncatePasses` | 4/4 | ✅ 통과 |
+| REQ-PAS-01 | 시간 창에서 가시 구간(AOS·LOS·최대 고도각)을 찾는다. 창의 첫 표본부터 마지막 표본까지만 본다 | `PassPredictorTest#issPassesPerDayAreRealistic`<br>`PassPredictorTest#equatorialLeoRarelyVisibleFromDaejeon`<br>`PassPredictorTest#maxElevationMatchesFineSampling`<br>`PassPredictorTest#windowBoundariesTruncatePasses`<br>`PassPredictorTest#lastSampleOfTheWindowIsInspected`<br>`PassPredictorTest#samplesBeforeTheWindowNeverLeakIn` | 6/6 | ✅ 통과 |
 | REQ-PAS-02 | AOS·LOS 는 최소 고도각 경계에 있다 | `PassPredictorTest#aosLosSitOnTheMask` | 1/1 | ✅ 통과 |
 | REQ-PAS-03 | 결과는 탐색 간격에 강건하다 | `PassPredictorTest#stepSizeRobustness` | 1/1 | ✅ 통과 |
 | REQ-PAS-04 | 패스는 시간순이고 겹치지 않으며, 마스크를 올리면 패스 수가 늘지 않는다 | `PassPredictorTest#passesAreOrderedAndDisjoint`<br>`PassPredictorTest#higherMaskYieldsFewerOrEqualPasses`<br>`PassPredictorTest#resultIsUnmodifiable` | 3/3 | ✅ 통과 |
