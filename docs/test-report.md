@@ -1,8 +1,8 @@
 # 신뢰성 시험 보고서 — orbit-pass-sim
 
-- 일자: 2026-09-15 (기준선) · 2026-09-16 (SGP4 대조 — §7)
+- 일자: 2026-09-15 (기준선) · 2026-09-16 (SGP4 대조 — §7) · 2026-09-21 (J2 · SonarQube · 성능 — §4·§5·§10) · 2026-09-23 (`predict` 정리 — §11)
 - 대상: `src/main/java/orbitsim` (시험 계획 [`test-plan.md`](test-plan.md) §1)
-- 기준: [`requirements.md`](requirements.md) REQ 29개 · QR-01~06
+- 기준: [`requirements.md`](requirements.md) REQ 29개 · QR-01~07
 - 환경: 로컬 Windows 11 · Temurin JDK 21.0.12 / GitHub Actions ubuntu·windows × JDK 21 ([run 34954954787](https://github.com/Haejyn/orbit-pass-sim/actions/runs/34954954787) 두 OS 모두 성공) / Jenkins LTS 로컬 (빌드 #2 성공, 7 스테이지 73 s, [콘솔 로그](evidence/2026-09-15-jenkins-build-2-console.log) · [화면](evidence/2026-09-15-jenkins-job.png))
 - 도구: JUnit 5.13 · JaCoCo 0.8.13 · PIT 1.20.1 · PMD 7.14 · SpotBugs 4.9.3 · Python `sgp4` (기준 궤적 생성)
   · SonarQube Cloud 는 2026-09-21 에 **첫 분석을 마쳤다** — 품질 게이트 통과 ([대시보드](https://sonarcloud.io/dashboard?id=Haejyn_orbit-pass-sim), [CI run](https://github.com/Haejyn/orbit-pass-sim/actions/runs/35589523639), §5)
@@ -112,12 +112,12 @@ PIT 를 돌리기 전에 뮤턴트를 직접 심어 확인했다 — L43 두 종
 |---|---|---|
 | PMD quickstart | 첫 실행 18건 → 0 | 중괄호 없는 `if` 11 · 한 줄 다중 선언 5 는 수정. `LogicInversion` 2 는 **규칙 제외** — `!(end > start)` 는 NaN 도 거부하려는 의도이고 권고대로 `end <= start` 로 쓰면 NaN 이 통과한다. 근거를 규칙 파일·코드 주석에 남김 |
 | SpotBugs `-effort:max -low` | 0 | — |
-| SonarQube Cloud | **품질 게이트 통과** (2026-09-21, [run 35589523639](https://github.com/Haejyn/orbit-pass-sim/actions/runs/35589523639)) — 버그 0 · 취약점 0 · 보안 핫스팟 0 · 중복 0.0 % · 등급 전부 A · 코드 스멜 **6** | 아래 |
+| SonarQube Cloud | **품질 게이트 통과** (2026-09-21, [run 35589523639](https://github.com/Haejyn/orbit-pass-sim/actions/runs/35589523639)) — 버그 0 · 취약점 0 · 보안 핫스팟 0 · 중복 0.0 % · 등급 전부 A · 코드 스멜 **6** → **5**(2026-09-23 재분석, §11) | 아래 |
 
 **SonarQube 첫 분석 (2026-09-21).** 토큰을 등록하기 전까지 이 잡은 **초록이었지만 아무것도 하지 않았다**(`SONAR_TOKEN` 이 없으면 스텝을 건너뛰고 `::notice::` 만 찍는다).
 그래서 성공 표시만으로는 분석이 돌았다는 증거가 못 되고, 로그에서 `sonar-scanner` 실행 · JavaSensor · JaCoCo 리포트 가져오기 · `QUALITY GATE STATUS: PASSED` 를 확인했다.
 
-- **커버리지 100 % 는 JaCoCo 93.7 % 와 같은 값이다.** 덮인 수는 라인 224 · 분기 100 으로 **똑같고** 분모만 다르다 — `ci.yml` 이 `-Dsonar.coverage.exclusions=**/Main.java` 로 데모 CLI 를 빼기 때문이다.
+- **커버리지 100 % 는 JaCoCo 93.7 % 와 같은 값이다**(09-21 분석 기준 — §11 뒤 JaCoCo 는 93.9 %). 덮인 수는 라인 224 · 분기 100 으로 **똑같고** 분모만 다르다 — `ci.yml` 이 `-Dsonar.coverage.exclusions=**/Main.java` 로 데모 CLI 를 빼기 때문이다.
   JaCoCo 클래스별로 보면 덮이지 않은 코드는 `Main` 뿐이다(라인 15 · 분기 8). 이 제외는 설정에 그대로 적혀 있고, 숫자를 좋게 보이려고 넣은 것이 아니라 처음부터 있었다.
   (예전 보고서는 "`Main` 제외 시 224/225" 라고 적었는데 틀린 서술이었다 — 정확히는 224/224 다.)
 - **코드 스멜 6 개의 판정**
@@ -254,7 +254,7 @@ tools/differential.py ──▶ input.csv (520 사례)
 - **수치**: `|a − b| ≤ 1e-9 + 1e-12·|기준값|`. 두 구현 모두 IEEE754 double 로 같은 식을 계산하므로 차이는 ulp 수준이어야 한다.
 - **판정**: 예외를 `ok` · `reject`(인수 오류) · `diverge`(비수렴) · `state`(영벡터) 로 정규화해 **같은 입력을 같은 이유로 거부하는지**까지 본다. 값만 맞고 거부 조건이 다르면 반쪽짜리다.
 - **경계·특이값을 일부러 섞는다** — 언어 간 차이는 보통 여기서 난다: `NaN` · `±∞` · `−0.0` · e→1 · i = 0/π · 근지점이 지표에 닿는 경계 · 정북 근처 방위각 · \|M\| = 1e15 · 창/간격/마스크 경계 · 극과 날짜변경선의 지상국.
-- **기존 게이트를 건드리지 않는다**: 차분 CLI 는 `src/cli/java` 라는 별도 소스 루트에 둬 JaCoCo(`build/classes`)·PIT·PMD(`src/main/java`)·SpotBugs 대상에서 빠진다. 뮤테이션 대상이 **298 개 그대로**인 것이 격리가 먹혔다는 증거다.
+- **기존 게이트를 건드리지 않는다**: 차분 CLI 는 `src/cli/java` 라는 별도 소스 루트에 둬 JaCoCo(`build/classes`)·PIT·PMD(`src/main/java`)·SpotBugs 대상에서 빠진다. 뮤테이션 대상이 **298 개 그대로**인 것이 격리가 먹혔다는 증거다(당시 기준 — §11 에서 `predict` 를 고쳐 302 개가 됐다).
 
 ### 9.2 결과 — 불일치 0, 최대 차이는 약 4 ulp
 
@@ -285,9 +285,9 @@ tools/differential.py ──▶ input.csv (520 사례)
 
 | | Java | C# |
 |---|---|---|
-| 시험 | **657** 통과 (기존 136 + 차분 521) | **564** 통과 |
-| 커버리지 | 라인 93.7 % · 분기 92.6 % (JaCoCo) | 라인 92.3 % · 분기 93.3 % (coverlet) |
-| 뮤테이션 | 94.0 % (280/298, PIT) | 범위 밖 |
+| 시험 | **659** 통과 (기존 138 + 차분 521) | **564** 통과 |
+| 커버리지 | 라인 93.9 % · 분기 92.6 % (JaCoCo) | 라인 92.3 % · 분기 93.3 % (coverlet) |
+| 뮤테이션 | 95.0 % (287/302, PIT — §11 뒤) | 범위 밖 |
 | 경고 | `-Xlint:all -Werror` 0 | `TreatWarningsAsErrors` · 분석기 latest-recommended 0 |
 
 CI 에 `differential` 잡을 두어 ubuntu 에서 JDK 21 과 .NET 10 을 함께 올리고 두 구현을 돌려 대조한다.
@@ -323,7 +323,7 @@ JMH 는 쓰지 않았다: 애너테이션 프로세서가 필요해 `build.py` �
 
 **2. 내 가설이 틀렸다.** 계획을 세울 때 "가시 구간에서 `elevationAt` 이 표본당 2~3 회 계산되니 절반 가까이 줄일 여지가 있다" 고 적었다.
 측정은 표본당 궤적 평가 **1.02~1.03 회**다. 추가 호출은 가시 표본(`PassPredictor.java` 98~100 줄의 `if (nowVisible)`)과 이분법에서만 생기고,
-LEO 위성이 지상국에서 보이는 시간은 하루의 2 % 남짓이다 — 하루 창의 추가 평가가 222 회(8,863 − 8,641)뿐이다. 다 없애도 2~3 % 라 **제품 코드를 고치지 않았다**
+LEO 위성이 지상국에서 보이는 시간은 하루의 2 % 남짓이다 — 하루 창의 추가 평가가 222 회(8,863 − 8,641)뿐이다. 다 없애도 2~3 % 라 **제품 코드를 고치지 않았다** → 결국 §11 에서 가독성 정리와 함께 없앴다(`nowVisible` 분기는 지금 없다)
 (`PassPredictor` 는 뮤테이션 검사 대상이라 고치면 새 생존 위험만 얻는다). 다만 **가시 비율이 높은 궤도(정지궤도)에서는 이 중복이 실제로 절반을 차지한다** — 그 경우는 측정하지 않았다.
 
 **3. 할당은 게이트로 부적절하다.** 같은 코드·같은 입력(이체 하루 창)이 첫 실행에서 **106.7 B/표본**, 둘째 실행에서 **41.1 B/표본**이었다 — JIT 의 탈출 분석이 할당을 없애 주는 정도가 실행마다 다르다.
