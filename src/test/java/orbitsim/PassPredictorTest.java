@@ -185,4 +185,47 @@ class PassPredictorTest {
         List<PassPredictor.Pass> passes = new PassPredictor(ISS_LIKE, DAEJEON, 0.0, 0.0).predict(0, 86400, 30);
         assertThrows(UnsupportedOperationException.class, passes::clear);
     }
+
+    @Test
+    @Tag("REQ-PAS-01")
+    @DisplayName("창의 마지막 표본까지 본다 — 창이 AOS 직후 첫 표본에서 끝나도 그 패스를 낸다")
+    void lastSampleOfTheWindowIsInspected() {
+        // 탐색 루프는 t ≤ end(+1e-9) 까지 돈다. 창 끝을 "첫 패스가 처음 보이는 표본" 에 딱 맞추면, 그 한 표본을
+        // 빠뜨리는 구현은 패스를 하나도 못 찾는다. 간격이 10 s 라 t 는 0, 10, 20, … 으로 정확히 쌓여 end 와 같아진다.
+        // (생존 뮤턴트 `end + 1e-9` → `end − 1e-9` 가 가리킨 빈자리 — 이 경계를 짚는 시험이 없었다.)
+        PassPredictor pp = new PassPredictor(ISS_LIKE, DAEJEON, 0.0, 0.0);
+        PassPredictor.Pass first = pp.predict(0, 86400, 10).get(0);
+        double end = Math.ceil(first.aosSeconds() / 10.0) * 10.0;   // AOS 뒤 첫 표본 시각
+        assertTrue(end - first.aosSeconds() < 10.0 && end > 10.0, "창 끝이 AOS 직후 첫 표본이어야 한다");
+
+        List<PassPredictor.Pass> truncated = pp.predict(0, end, 10);
+
+        assertEquals(1, truncated.size(), "창의 마지막 표본에서 막 보이기 시작한 패스를 놓쳤다");
+        assertEquals(first.aosSeconds(), truncated.get(0).aosSeconds(), 0.5, "AOS 는 전체 창에서 구한 것과 같아야 한다");
+        assertEquals(end, truncated.get(0).losSeconds(), "창에서 잘린 패스의 LOS 는 창 끝이다");
+    }
+
+    @Test
+    @Tag("REQ-PAS-01")
+    @DisplayName("창 밖의 표본은 결과에 섞이지 않는다 — 창이 LOS 직후나 최고점 뒤에서 시작해도")
+    void samplesBeforeTheWindowNeverLeakIn() {
+        // 탐색은 창 시작에서 한 간격 뒤(start + step)부터 걷는다. 한 간격 **앞**(start − step)에서 걷기 시작하는 구현은
+        // 창 밖의 고도각을 본다 — LOS 직후에 시작한 창에 창보다 먼저 시작하는 패스가 생기고, 최고점을 지난 뒤 시작한 창의
+        // 최대 고도각이 창 밖의 값이 된다. (생존 뮤턴트 `startSeconds + stepSeconds` → `−` 가 가리킨 빈자리.)
+        PassPredictor pp = new PassPredictor(ISS_LIKE, DAEJEON, 0.0, 0.0);
+        PassPredictor.Pass first = pp.predict(0, 86400, 10).get(0);
+
+        double afterLos = first.losSeconds() + 5.0;           // 한 간격 앞(LOS − 5 s)은 아직 보인다
+        for (PassPredictor.Pass p : pp.predict(afterLos, afterLos + 3000, 10)) {
+            assertTrue(p.aosSeconds() >= afterLos, "창보다 먼저 시작하는 패스가 나왔다: AOS " + p.aosSeconds() + " < " + afterLos);
+        }
+
+        double afterPeak = first.timeOfMaxSeconds() + 60.0;   // 최고점을 지난 뒤 — 고도각이 줄어드는 중
+        PassPredictor.Pass tail = pp.predict(afterPeak, afterPeak + 3000, 10).get(0);
+        assertEquals(afterPeak, tail.aosSeconds(), "창을 여는 순간 보이면 AOS 는 창 시작이다");
+        assertTrue(tail.timeOfMaxSeconds() >= afterPeak, "최대 고도각 시각이 창 밖이다: " + tail.timeOfMaxSeconds());
+        assertEquals(Math.toDegrees(pp.elevationAt(afterPeak)), tail.maxElevationDeg(), 1e-12,
+                "최고점을 지난 뒤 시작한 창의 최대 고도각은 창을 여는 순간의 값이다");
+    }
 }
+

@@ -88,32 +88,55 @@ public final class PassPredictor {
             throw new IllegalArgumentException("step must be in (0, window]: " + stepSeconds);
         }
         List<Pass> passes = new ArrayList<>();
-        boolean visible = isVisible(startSeconds);
-        double aos = visible ? startSeconds : Double.NaN;
-        double maxElev = visible ? elevationAt(startSeconds) : Double.NEGATIVE_INFINITY;
-        double tMax = startSeconds;
+        // 표본마다 고도각을 한 번만 구한다 — 보이는지와 최대 고도각이 같은 값에서 나온다.
+        double startElevation = elevationAt(startSeconds);
+        PassInProgress current = startElevation >= minElevationRad
+                ? new PassInProgress(startSeconds, startElevation, startSeconds) : null;
         double prev = startSeconds;
         for (double t = startSeconds + stepSeconds; t <= endSeconds + 1e-9; t += stepSeconds) {
-            boolean nowVisible = isVisible(t);
-            if (nowVisible) {
-                double el = elevationAt(t);
-                if (el > maxElev) { maxElev = el; tMax = t; }
+            double elevation = elevationAt(t);
+            boolean visible = elevation >= minElevationRad;
+            if (current == null && visible) {
+                current = new PassInProgress(bisect(prev, t), elevation, t);
+            } else if (current != null && !visible) {
+                passes.add(current.end(bisect(t, prev)));
+                current = null;
+            } else if (current != null) {
+                current.observe(elevation, t);
             }
-            if (!visible && nowVisible) {
-                aos = bisect(prev, t);
-                maxElev = elevationAt(t); tMax = t;
-            } else if (visible && !nowVisible) {
-                double los = bisect(t, prev);
-                passes.add(new Pass(aos, los, Math.toDegrees(maxElev), tMax));
-                maxElev = Double.NEGATIVE_INFINITY;
-            }
-            visible = nowVisible;
             prev = t;
         }
-        if (visible) {
-            passes.add(new Pass(aos, endSeconds, Math.toDegrees(maxElev), tMax));
+        if (current != null) {
+            passes.add(current.end(endSeconds));
         }
         return Collections.unmodifiableList(passes);
+    }
+
+    /**
+     * 진행 중인 패스 — AOS 와 지금까지의 최대 고도각. 패스 밖에서는 없다(null) — 예전에는 AOS·최대 고도각을
+     * 패스 밖에서도 NaN·−∞ 로 들고 다녔고, 그 값은 AOS 에서 곧바로 덮여 아무도 읽지 않았다(생존 뮤턴트가 가리켰다).
+     */
+    private static final class PassInProgress {
+        private final double aos;
+        private double maxElevation;
+        private double timeOfMax;
+
+        PassInProgress(double aos, double elevation, double t) {
+            this.aos = aos;
+            this.maxElevation = elevation;
+            this.timeOfMax = t;
+        }
+
+        void observe(double elevation, double t) {
+            if (elevation > maxElevation) {
+                maxElevation = elevation;
+                timeOfMax = t;
+            }
+        }
+
+        Pass end(double los) {
+            return new Pass(aos, los, Math.toDegrees(maxElevation), timeOfMax);
+        }
     }
 
     private boolean isVisible(double t) { return elevationAt(t) >= minElevationRad; }
