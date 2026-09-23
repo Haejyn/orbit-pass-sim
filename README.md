@@ -78,6 +78,19 @@ flowchart LR
 ![Java C# 차분](docs/img/differential.png)
 <sub>그림 3. 같은 명세로 만든 Java · C# 구현의 출력 차이 분포</sub>
 
+## 🧰 도구
+
+| 용도 | 도구 |
+|---|---|
+| 파이프라인 | `build.py` (JDK + Python 만) · 고정 버전 jar (`tools/fetch.py`) |
+| 시험 | JUnit 5 · C# 이식본 xUnit |
+| 품질 측정 | JaCoCo (커버리지) · PIT (뮤테이션) · PMD · SpotBugs · SonarQube Cloud |
+| 정답 기준 | 해석해 · Python RK4 · SGP4 · Java ↔ C# 차분 |
+| 성능 · 추적 | `BenchCli` (표본당 궤적 평가) · `tools/trace.py` |
+| 자동화 | GitHub Actions · Jenkins |
+
+고른 이유 · 실행 시점: [도구 정리](docs/tools.md)
+
 ## 찾은 결함
 
 | ID | 내용 | 발견 |
@@ -142,7 +155,7 @@ python tools/make_readme_figures.py       # README 그림
 | `PassPredictor` | 가시 구간 탐색, AOS · LOS 이분법, 궤적 주입 (`forTrajectory`) |
 | `csharp/` | C# 이식본 (xUnit · coverlet) |
 | `tools/` | 빌드 파이프라인 · 추적 · RK4 / SGP4 골든 · 차분 · 그림 |
-| `docs/` | [요구사항](docs/requirements.md) · [시험 계획서](docs/test-plan.md) · [시험 보고서](docs/test-report.md) · [추적 매트릭스](docs/traceability.md) |
+| `docs/` | [요구사항](docs/requirements.md) · [시험 계획서](docs/test-plan.md) · [시험 보고서](docs/test-report.md) · [추적 매트릭스](docs/traceability.md) · [도구 정리](docs/tools.md) |
 
 </details>
 
