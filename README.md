@@ -168,3 +168,8 @@ python tools/make_readme_figures.py       # README 그림
 ## 관련 프로젝트
 
 [ccsds-downlink-reliability](https://github.com/Haejyn/ccsds-downlink-reliability): 수신 신호 → CCSDS 프레임 → 패킷, 실제 위성 녹음 복호 (C#)
+
+## 라이선스
+
+- 코드: [MIT](LICENSE)
+- 기준 궤적의 입력 TLE: CelesTrak 공개 자료
