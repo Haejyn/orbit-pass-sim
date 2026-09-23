@@ -13,7 +13,7 @@ passes in 24h: 5
   ...
 ```
 
-## 결과 (2026-09-15 · SGP4 대조 2026-09-16)
+## 결과 (2026-09-23 기준 — 기준선 2026-09-15)
 
 | 항목 | 기준 | 결과 |
 |---|---|---|
@@ -27,7 +27,7 @@ passes in 24h: 5
 | **이레 창 패스 개수** | — | 이체는 **3 일차**, J2 는 **1 일차**부터 SGP4 와 개수가 어긋난다 — 이틀 넘는 일정에는 못 쓴다 |
 | PMD · SpotBugs | 0 | 0 · 0 |
 | SonarQube Cloud (품질 게이트) | 통과 | **통과** — 버그 0 · 취약점 0 · 중복 0.0 % · 등급 A · 코드 스멜 **5** (데모 출력 3 · NaN 검사 2 — 복잡도 지적은 `predict` 정리 뒤 main 재분석에서 사라졌다, §11) ([대시보드](https://sonarcloud.io/dashboard?id=Haejyn_orbit-pass-sim)) |
-| 성능 (`PassPredictor.predict`, 10 s 간격, JDK 26) | 표본당 궤적 평가 ≤ 1.10 (회귀 게이트) | 이체 하루 창 **2.3 ms** · 30 일 창 **92 ms** (표본당 약 0.3 µs), J2 는 약 1.4 배. 표본당 궤적 평가 **1.005 회**(`predict` 정리 전 1.02~1.03) ([보고서 §10·§11](docs/test-report.md)) |
+| 성능 (`PassPredictor.predict`, 10 s 간격, JDK 26) | 표본당 궤적 평가 ≤ 1.10 (회귀 게이트) | 이체 하루 창 **2.3 ms** · 30 일 창 **92 ms** (표본당 약 0.3 µs), J2 는 약 1.4 배. 표본당 궤적 평가 **1.006 회**(`predict` 정리 전 1.02~1.03) ([보고서 §10·§11](docs/test-report.md)) |
 | **발견·수정한 제품 결함** | — | **2건** — 장기 전파 시 케플러 비수렴(D-4), 방위각 360.0°(D-5) |
 
 → [시험 보고서](docs/test-report.md) · [시험 계획서](docs/test-plan.md) · [요구사항](docs/requirements.md) · [추적 매트릭스](docs/traceability.md)
@@ -52,12 +52,12 @@ passes in 24h: 5
 | 경계값 | 명세 범위 끝·바로 밖·NaN·±∞·−0.0 | e=1 거부 · i=π 허용 · −Double.MIN_VALUE 정규화 |
 | 성질 기반 무작위 | 고정 시드 불변식 (최대 100,000 건) | \|M\| 10³~10¹⁵ 케플러 · 1,000년 전파 · 관측각 범위 |
 | 메타모픽 | 입력·출력 변화의 관계 | 마스크↑ → 패스 수↓ · 탐색 간격 10 s vs 60 s 결과 동일 |
-| 뮤테이션 | 코드를 일부러 망가뜨림 | 생존 뮤턴트로 시험 약점 3건 발견·보강 |
+| 뮤테이션 | 코드를 일부러 망가뜨림 | 생존 뮤턴트로 시험 약점을 찾아 보강 — 첫 분석 3건, 이후 `forTrajectory(null)` · J2 이심 궤도 · 창의 양 끝 |
 
 ## 파이프라인
 
 ```
-python build.py                   # compile → test → coverage → mutation → pmd → spotbugs → trace
+python build.py                   # compile → test → coverage → mutation → pmd → spotbugs → trace → bench
 python build.py compile test      # 원하는 단계만
 python tools/gen_golden_rk4.py --check
 python tools/gen_golden_sgp4.py --check   # 골든 재현성 (sgp4 패키지가 없으면 건너뜀)
@@ -72,11 +72,12 @@ python tools/differential.py --check      # Java ↔ C# 차분 시험
 | mutation | PIT 1.20 (STRONGER) | 검출률 < 80 % |
 | pmd · spotbugs | PMD 7 · SpotBugs 4.9 | 1건 |
 | trace | `tools/trace.py` — `@Tag("REQ-…")` ↔ 명세 ↔ JUnit 결과 | 시험 없는 요구사항 · 실패한 요구사항 · 명세에 없는 ID |
+| bench | `BenchCli` — `PassPredictor.predict` 의 표본당 궤적 평가 횟수 (QR-07) | 표본당 1.10 회 초과 |
 
 | 실행 환경 | 설정 |
 |---|---|
 | GitHub Actions | `.github/workflows/ci.yml` — ubuntu·windows × JDK 21 매트릭스, 골든 재현성 검사, 잡 요약, 리포트 아티팩트, SonarQube Cloud 잡 |
-| Jenkins | `Jenkinsfile` — 같은 단계를 선언형 파이프라인 스테이지로, JUnit 결과 기록·리포트 보관. 로컬 Jenkins LTS 빌드 #2 성공 (7 스테이지, 73 s) |
+| Jenkins | `Jenkinsfile` — 같은 단계를 선언형 파이프라인 스테이지로, JUnit 결과 기록·리포트 보관. 로컬 Jenkins LTS 빌드 #2 성공 (당시 7 스테이지, 73 s — 지금은 Performance 스테이지를 더해 8) |
 | 로컬 | 빌드 도구 없이 JDK 21 + Python 3. 도구 jar 는 `tools/fetch.py` 가 고정 버전으로 내려받음 |
 
 ## 구성
@@ -90,5 +91,6 @@ python tools/differential.py --check      # Java ↔ C# 차분 시험
 | `Frames` | ECI↔ECEF(지구 자전각), 측지↔ECEF(구형 지구), 각도 정규화 |
 | `GroundStation` | 지상국 기준 ENU 로 고도각·방위각·거리 |
 | `PassPredictor` | 시간 창을 훑어 가시 구간을 찾고 AOS·LOS 를 이분법으로 0.5 s 까지 좁힘. 궤적을 주입할 수 있어(`forTrajectory`) J2 궤적이나 외부 골든 궤적도 같은 탐색 코드로 돌린다 |
+| `Vector3` · `StateVector` · `Constants` | 3 차원 벡터 연산 · 위치·속도 쌍 · 물리 상수(μ, 지구 반지름, J2, 자전 각속도) |
 
 범위 밖: J2 단주기 항과 평균 요소 변환(세속 항만 넣었다), 대기항력 섭동, 세차·장동, 타원체 지구, 대기 굴절, 제품 코드의 TLE/SGP4 (시험의 기준으로는 쓴다).
