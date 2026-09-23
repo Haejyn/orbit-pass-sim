@@ -6,9 +6,9 @@
 
 | 항목 | 내용 |
 |---|---|
-| SW | `orbitsim` 패키지 — KeplerSolver · OrbitalElements · TwoBodyPropagator · J2Propagator · Frames · GroundStation · PassPredictor · Vector3 · StateVector |
+| SW | `orbitsim` 패키지 — KeplerSolver · OrbitalElements · TwoBodyPropagator · J2Propagator · Frames · GroundStation · PassPredictor · Vector3 · StateVector · Constants |
 | 제외 | `Main` (데모 CLI, 로직 없음) |
-| 기준 문서 | `docs/requirements.md` 기능 요구사항 REQ-* 29개 · 품질 요구사항 QR-01~06 |
+| 기준 문서 | `docs/requirements.md` 기능 요구사항 REQ-* 29개 · 품질 요구사항 QR-01~07 |
 
 ## 2. 시험 목표
 
